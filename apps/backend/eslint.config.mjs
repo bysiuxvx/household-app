@@ -13,16 +13,16 @@ export default [
   // Global ignores
   {
     ignores: [
-      'dist/**', 
-      'node_modules/**', 
+      'dist/**',
+      'node_modules/**',
       '*.d.ts',
-      'old-index.ts' // Ignore the old index file
+      'old-app.ts' // Ignore the old index file
     ],
   },
-  
+
   // Base configs
   js.configs.recommended,
-  
+
   // TypeScript config
   {
     files: ['**/*.ts'],
