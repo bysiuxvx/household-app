@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Household {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members UserOnHousehold[]
+  lists   List[]
+}
+
+model User {
+  id        String   @id // Clerk User ID
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  households   UserOnHousehold[]
+  createdLists List[]            @relation("ListCreator")
+  listItems    ListItem[]
+}
+
+// relationship table between User and Household
+model UserOnHousehold {
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  householdId String
+  role        UserRole  @default(MEMBER)
+  joinedAt    DateTime  @default(now())
+
+  @@id([userId, householdId])
+  @@index([userId], name: "UserOnHousehold_userId_idx")
+  @@index([householdId], name: "UserOnHousehold_householdId_idx")
+}
+
+enum ListType {
+  TODO
+  GROCERY
+  SHOPPING
+  OTHER
+}
+
+enum UserRole {
+  ADMIN
+  MEMBER
+}
+
+model List {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  type        ListType @default(TODO)
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household   Household  @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  householdId String
+  createdBy   User       @relation("ListCreator", fields: [createdById], references: [id])
+  createdById String
+  items       ListItem[]
+
+  @@index([householdId], name: "List_householdId_idx")
+  @@index([createdById], name: "List_createdById_idx")
+}
+
+model ListItem {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  isCompleted Boolean   @default(false)
+  dueDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  list        List   @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId      String
+  createdBy   User   @relation(fields: [createdById], references: [id])
+  createdById String
+
+  @@index([listId], name: "ListItem_listId_idx")
+}
