@@ -36,15 +36,15 @@ module.exports = {
       {
         groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object'],
         'newlines-between': 'always',
-        'alphabetize': { order: 'asc', caseInsensitive: true },
-        'pathGroups': [
+        alphabetize: { order: 'asc', caseInsensitive: true },
+        pathGroups: [
           {
             pattern: '@household/**',
             group: 'external',
             position: 'after',
           },
         ],
-        'pathGroupsExcludeImportTypes': ['builtin'],
+        pathGroupsExcludeImportTypes: ['builtin'],
       },
     ],
 

@@ -1,5 +1,6 @@
-import express, { Express } from 'express'
 import { Household } from '@household/shared'
+import express, { Express } from 'express'
+
 import { householdRouter } from './routes/householdRoutes'
 
 const app: Express = express()
