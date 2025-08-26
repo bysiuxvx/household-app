@@ -1,5 +1,8 @@
-// Shared types and utilities will go here
-export * from './types';
+// Types
+export * from './types'
 
-// Example export
-export const VERSION = '1.0.0';
+// Utils
+export * from './utils'
+
+// Constants
+export const VERSION = '1.0.0'

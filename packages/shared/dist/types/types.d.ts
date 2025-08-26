@@ -1,2 +1,2 @@
-export type { User } from './index';
+export type { User } from './index'
 //# sourceMappingURL=types.d.ts.map

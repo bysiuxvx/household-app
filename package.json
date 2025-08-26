@@ -11,15 +11,27 @@
     "dev": "pnpm --filter \"@household/*\" dev",
     "dev:all": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
     "start": "pnpm dev:all",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint -- --fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,mdx,html,css,scss}\" --ignore-path .gitignore",
-    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,mdx,html,css,scss}\" --ignore-path .gitignore"
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,mdx,html,css,scss}\" --ignore-path .gitignore",
+    "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.0",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "concurrently": "^9.2.1",
+    "eslint": "^8.56.0",
+    "eslint-plugin-import": "^2.29.1",
     "prettier": "^3.6.2",
     "rimraf": "^5.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "~5.3.3"
   },
-  "packageManager": "pnpm@8.0.0"
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
 }
