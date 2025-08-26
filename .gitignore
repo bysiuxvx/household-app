@@ -16,13 +16,8 @@ apps/*/.output/
 **/src/**/*.js
 **/src/**/*.d.ts
 
-# Keep dist for shared package (it's a published package)
-!packages/shared/dist/
-!packages/shared/dist/**/*
-
-# Ignore dist in all other packages
+# Ignore dist in all packages including shared
 packages/*/dist/
-!packages/shared/dist/
 
 # Environment variables
 .env
