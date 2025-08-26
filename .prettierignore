@@ -1,0 +1,29 @@
+# Dependencies
+**/node_modules
+**/dist
+**/build
+**/.next
+**/.svelte-kit
+**/.output
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Auto-generated files
+**/*.min.js
+**/*.min.css
+
+# Cache directories
+.cache/
+.turbo/
+
+# OS generated files
+.DS_Store
+Thumbs.db

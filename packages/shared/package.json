@@ -1,0 +1,26 @@
+{
+  "name": "@household/shared",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": {
+      "import": "./dist/*.js",
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
