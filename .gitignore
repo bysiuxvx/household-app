@@ -48,6 +48,9 @@ pnpm-debug.log*
 # OS generated files
 .DS_Store
 .DS_Store?
+
+# Prisma
+apps/backend/prisma/migrations/
 ._*
 .Spotlight-V100
 .Trashes

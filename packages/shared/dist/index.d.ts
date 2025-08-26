@@ -1,3 +1,2 @@
-export * from './types'
-export declare const VERSION = '1.0.0'
+export * from './types/household-model';
 //# sourceMappingURL=index.d.ts.map
