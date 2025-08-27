@@ -25,10 +25,7 @@
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@/components/*": ["./src/components/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@household/shared": ["../../packages/shared/src"],
+      "@household/shared": ["../../packages/shared/src/index.ts"],
       "@household/shared/*": ["../../packages/shared/src/*"]
     }
   },
