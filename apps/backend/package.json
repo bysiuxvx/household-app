@@ -18,10 +18,12 @@
     "@clerk/express": "^1.7.24",
     "@household/shared": "workspace:*",
     "@prisma/client": "^6.14.0",
+    "cors": "^2.8.5",
     "express": "^5.1.0"
   },
   "devDependencies": {
     "@household/eslint-config": "workspace:*",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/node": "^20.11.0",
     "eslint-plugin-import": "2.29.1",
