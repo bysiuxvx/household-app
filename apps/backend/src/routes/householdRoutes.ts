@@ -1,18 +1,95 @@
 import { User, clerkClient, getAuth } from '@clerk/express'
-import { HOUSEHOLD_MIN_NAME_LENGTH, UserRoles } from '@household/shared';
-import express, { Router } from 'express';
+import express, { Router } from 'express'
 
-import prisma from '../utils/prisma-client';
+import { HOUSEHOLD_MIN_NAME_LENGTH, UserRoles } from '@household/shared'
+
+import prisma from '../utils/prisma-client'
 
 export const householdRouter: Router = express.Router()
 
 householdRouter.get('/', async (req: express.Request, res: express.Response): Promise<void> => {
+  const { userId } = getAuth(req)
+
+  if (!userId) {
+    res.status(401).json({ error: 'Unauthorized' })
+    return
+  }
+
   try {
-    const households = await prisma.household.findMany({
-      include: {
-        members: true,
-      },
-    })
+    const user: User = await clerkClient.users.getUser(userId)
+
+    const [userRecord, households] = await prisma.$transaction([
+      prisma.user.upsert({
+        where: { id: userId },
+        update: {},
+        create: {
+          id: user.id,
+          email: user.primaryEmailAddress?.emailAddress || '',
+          name:
+            user.firstName || user.lastName
+              ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
+              : undefined,
+          username: user.username,
+        },
+        include: {
+          households: {
+            include: {
+              household: {
+                include: {
+                  members: {
+                    include: {
+                      user: {
+                        select: {
+                          id: true,
+                          name: true,
+                          email: true,
+                          username: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.household.findMany({
+        where: {
+          members: {
+            some: {
+              userId: userId,
+            },
+          },
+        },
+        include: {
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          lists: {
+            include: {
+              items: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+    ])
+
     res.json(households)
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch households' })
@@ -31,7 +108,9 @@ householdRouter.post('/', async (req: express.Request, res: express.Response): P
     }
 
     if (name.trim().length < HOUSEHOLD_MIN_NAME_LENGTH) {
-      res.status(400).json({ error: `Name must be at least ${HOUSEHOLD_MIN_NAME_LENGTH} characters long` })
+      res
+        .status(400)
+        .json({ error: `Name must be at least ${HOUSEHOLD_MIN_NAME_LENGTH} characters long` })
     }
 
     const [userRecord, newHousehold] = await prisma.$transaction([
@@ -42,6 +121,7 @@ householdRouter.post('/', async (req: express.Request, res: express.Response): P
           id: user.id,
           email: user.primaryEmailAddress!.emailAddress,
           name: user.firstName,
+          username: user.username,
         },
       }),
       prisma.household.create({
