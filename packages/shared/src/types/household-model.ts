@@ -27,3 +27,5 @@ export interface Household {
   description?: string
   members: string[]
 }
+
+export const HOUSEHOLD_MIN_NAME_LENGTH = 3 as const
