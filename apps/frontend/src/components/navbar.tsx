@@ -1,9 +1,13 @@
-import { Menu } from 'lucide-react'
-import { SignOutButton } from '@clerk/clerk-react'
+import { SignOutButton } from '@clerk/clerk-react';
+import { useAtom } from 'jotai';
+import { Menu } from 'lucide-react';
 import { Button } from './ui/button.tsx'
+import { selectedHouseholdAtom } from '../store'
 
 function Navbar() {
-  return (
+  const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom);
+
+  if (!selectedHousehold) return (
     <nav className="bg-card border-b border-border p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">

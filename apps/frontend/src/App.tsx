@@ -1,64 +1,104 @@
-
-import { useUser } from "@clerk/clerk-react";
-import { useState } from 'react'
-import Navbar from './components/navbar.tsx'
-import CreateHouseholdModal from './components/create-household-modal.tsx'
-import { Button } from './components/ui/button.tsx'
+import { useAuth, useUser } from '@clerk/clerk-react'
+import { useAtom } from 'jotai'
 import { Plus } from 'lucide-react'
-import { HouseholdCard } from './components/household-card.tsx'
-import NoHousehold from './components/ui/no-household.tsx'
+import { useEffect, useState } from 'react'
 
+import CreateHouseholdModal from './components/create-household-modal.tsx'
+import { HouseholdCard } from './components/household-card.tsx'
+import Navbar from './components/navbar.tsx'
+import { Button } from './components/ui/button.tsx'
+import NoHousehold from './components/ui/no-household.tsx'
+import { selectedHouseholdAtom } from './store'
 
 function App() {
-
   const [createHouseholdModalOpen, setCreateHouseholdModalOpen] = useState<boolean>(false)
-  const households: any[] = []
+  const [households, setHouseholds] = useState<any[]>([])
+  const { getToken } = useAuth()
+  // const households: any[] = []
   const { user } = useUser()
+  const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
+
+  const fetchHouseholds = async () => {
+    try {
+      const token = await getToken()
+      const response = await fetch('http://localhost:3000/api/households', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch households')
+      }
+
+      const data = await response.json()
+      setHouseholds(data)
+      console.log(data)
+    } catch (error) {
+      console.error('Error fetching households:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchHouseholds()
+  }, [selectedHousehold])
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <Navbar/>
-      {createHouseholdModalOpen && <CreateHouseholdModal open={createHouseholdModalOpen} setOpen={setCreateHouseholdModalOpen}/>}
+    <div className='min-h-screen bg-background pb-20'>
+      <Navbar />
+      {createHouseholdModalOpen && (
+        <CreateHouseholdModal
+          open={createHouseholdModalOpen}
+          setOpen={setCreateHouseholdModalOpen}
+        />
+      )}
 
-      <main className="p-4 space-y-6">
-        <div className="text-center py-6">
-          <h2 className="text-xl font-semibold text-foreground mb-2">Welcome back, {user?.firstName || user?.username || "there"}!</h2>
-          <p className="text-muted-foreground">Manage your household tasks and lists</p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-medium text-foreground">Your Households</h3>
-            <Button size="sm" className="gap-2"
-            onClick={() => setCreateHouseholdModalOpen(true)}
-            >
-              <Plus className="h-4 w-4" />
-              Create
-            </Button >
-          </div>
-        </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-
-          {households.length > 0 ? (
-            <div className="space-y-3">
-              {households.map((household) => (
-                <HouseholdCard
-                  key={household.id}
-                  household={household}
-                  // onClick={() => handleHouseholdClick(household.id)}
-                  onClick={() => null}
-                />
-              ))}
+      <main className='p-4 space-y-6'>
+        {!selectedHousehold && (
+          <>
+            <div className='text-center py-6'>
+              <h2 className='text-xl font-semibold text-foreground mb-2'>
+                Welcome back, {user?.firstName || user?.username || 'friend'}!
+              </h2>
+              <p className='text-muted-foreground'>Manage your household tasks and lists</p>
             </div>
-          ) : (
-            <NoHousehold/>
-          )}
-        </div>
-        </div>
-      </main>
 
+            <div className='space-y-4'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-lg font-medium text-foreground'>Your Households</h3>
+                <Button
+                  size='sm'
+                  className='gap-2'
+                  onClick={() => setCreateHouseholdModalOpen(true)}
+                >
+                  <Plus className='h-4 w-4' />
+                  Create
+                </Button>
+              </div>
+            </div>
+            <div className='space-y-4 w-full'>
+              <div className='w-full'>
+                {households.length > 0 ? (
+                  <div className='space-y-3 w-full'>
+                    {households.map((household) => (
+                      <div key={household.id} className='w-full'>
+                        <HouseholdCard
+                          household={household}
+                          onClick={() => setSelectedHousehold(household.id)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <NoHousehold />
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </main>
     </div>
   )
 }
