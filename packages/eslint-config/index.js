@@ -30,23 +30,12 @@ module.exports = {
       },
     ],
 
-    // Import rules
-    'import/order': [
-      'error',
-      {
-        groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object'],
-        'newlines-between': 'always',
-        alphabetize: { order: 'asc', caseInsensitive: true },
-        pathGroups: [
-          {
-            pattern: '@household/**',
-            group: 'external',
-            position: 'after',
-          },
-        ],
-        pathGroupsExcludeImportTypes: ['builtin'],
-      },
-    ],
+    // Import rules (disabled in favor of Prettier's import sorting)
+    'import/order': 'off',
+    'import/first': 'off',
+    'import/newline-after-import': 'off',
+    'import/no-duplicates': 'off',
+    'sort-imports': 'off',
 
     // General rules
     'no-console': 'warn',
