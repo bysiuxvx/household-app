@@ -19,7 +19,8 @@
     "@household/shared": "workspace:*",
     "@prisma/client": "^6.14.0",
     "cors": "^2.8.5",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "zod": "^4.1.3"
   },
   "devDependencies": {
     "@household/eslint-config": "workspace:*",
