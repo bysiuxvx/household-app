@@ -1,4 +1,5 @@
 {
+  "extends": "@tsconfig/vite-react/tsconfig.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "target": "ES2022",
@@ -24,6 +25,9 @@
     /* Path aliases */
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
       "@household/shared": ["../../packages/shared/src"],
       "@household/shared/*": ["../../packages/shared/src/*"]
     }
