@@ -1,5 +1,5 @@
-import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card.tsx'
 import { Users } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardTitle } from './card.tsx'
 
 function NoHousehold() {
 
