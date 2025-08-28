@@ -1,7 +1,8 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import CreateHouseholdModal from './components/create-household-modal.tsx'
 import { HouseholdCard } from './components/household-card.tsx'
@@ -12,14 +13,17 @@ import { selectedHouseholdAtom } from './store'
 
 function App() {
   const [createHouseholdModalOpen, setCreateHouseholdModalOpen] = useState<boolean>(false)
-  const [households, setHouseholds] = useState<any[]>([])
   const { getToken } = useAuth()
-  // const households: any[] = []
   const { user } = useUser()
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
 
-  const fetchHouseholds = async () => {
-    try {
+  const {
+    data: households = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['households'],
+    queryFn: async () => {
       const token = await getToken()
       const response = await fetch('http://localhost:3000/api/households', {
         method: 'GET',
@@ -33,17 +37,9 @@ function App() {
         throw new Error('Failed to fetch households')
       }
 
-      const data = await response.json()
-      setHouseholds(data)
-      console.log(data)
-    } catch (error) {
-      console.error('Error fetching households:', error)
-    }
-  }
-
-  useEffect(() => {
-    fetchHouseholds()
-  }, [selectedHousehold])
+      return response.json()
+    },
+  })
 
   return (
     <div className='min-h-screen bg-background pb-20'>
@@ -86,7 +82,7 @@ function App() {
                       <div key={household.id} className='w-full'>
                         <HouseholdCard
                           household={household}
-                          onClick={() => setSelectedHousehold(household.id)}
+                          onClick={() => setSelectedHousehold(household)}
                         />
                       </div>
                     ))}
