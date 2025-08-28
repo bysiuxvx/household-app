@@ -161,8 +161,23 @@ function Household() {
   const todoList = getListByType(household.lists, 'TODO')
   const shoppingList = getListByType(household.lists, 'SHOPPING')
 
-  const activeTodos = todoList?.items.filter((item) => !item.completed) || []
+  const priorityOrder = {
+    HIGH: 1,
+    MEDIUM: 2,
+    LOW: 3,
+  }
+
+  const activeTodos: ListItem[] =
+    todoList?.items
+      .filter((item: ListItem) => !item.completed)
+      .sort((a: ListItem, b: ListItem) => {
+        const priorityA: Priority = a.priority || 'MEDIUM'
+        const priorityB: Priority = b.priority || 'MEDIUM'
+        return priorityOrder[priorityA] - priorityOrder[priorityB]
+      }) || []
+
   const completedTodos = todoList?.items.filter((item) => item.completed) || []
+
   const activeGroceries = shoppingList?.items.filter((item) => !item.completed) || []
   const completedGroceries = shoppingList?.items.filter((item) => item.completed) || []
 
