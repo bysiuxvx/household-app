@@ -38,8 +38,6 @@ export function TodoItem({ item, onToggle, onEdit, onDelete }: TodoItemProps) {
     setIsEditing(false)
   }
 
-  console.log(item.type)
-
   const priorityColors = {
     low: 'bg-green-100 text-green-800',
     medium: 'bg-yellow-100 text-yellow-800',

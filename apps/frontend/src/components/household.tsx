@@ -93,7 +93,6 @@ async function createListItem(
 
 async function toggleListItem(itemId: string, completed: boolean, getToken: () => Promise<string>) {
   const token = await getToken()
-  console.log('Toggling item:', { itemId, completed, token: token ? 'token exists' : 'no token' })
 
   try {
     const response = await fetch(`${config.apiBaseUrl}/api/list-items/${itemId}`, {
@@ -112,7 +111,6 @@ async function toggleListItem(itemId: string, completed: boolean, getToken: () =
       throw new Error(data.message || `Failed to update item: ${response.statusText}`)
     }
 
-    console.log('Item updated successfully:', data)
     return data
   } catch (error) {
     console.error('Error in toggleListItem:', error)
@@ -382,10 +380,8 @@ function Household() {
 
   // Handler functions
   const handleAddItem = (itemData: { text: string; priority?: Priority; type: ItemType }) => {
-    console.log('handleAddItem called with:', itemData)
     const listType = itemData.type.toUpperCase() as 'TODO' | 'SHOPPING'
     const list = listType === 'TODO' ? todoList : shoppingList
-    console.log('Selected list:', list)
 
     if (!list) {
       console.error('No list found for type:', listType)
@@ -398,14 +394,11 @@ function Household() {
       priority: (itemData.priority?.toUpperCase() || 'MEDIUM') as 'LOW' | 'MEDIUM' | 'HIGH',
     }
 
-    console.log('Calling addItemMutation with:', newItem)
     addItemMutation.mutate(newItem, {
       onError: (error) => {
         console.error('Error adding item:', error)
       },
-      onSuccess: (data) => {
-        console.log('Successfully added item:', data)
-      },
+      onSuccess: (data) => {},
     })
   }
 
