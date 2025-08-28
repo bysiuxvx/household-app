@@ -7,6 +7,83 @@ import prisma from '../utils/prisma-client'
 
 export const householdRouter: Router = express.Router()
 
+//  single household by ID
+householdRouter.get(
+  '/:householdId',
+  async (req: express.Request, res: express.Response): Promise<void> => {
+    const { userId } = getAuth(req)
+    const { householdId } = req.params
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    try {
+      const household = await prisma.household.findFirst({
+        where: {
+          id: householdId,
+          members: {
+            some: {
+              userId,
+            },
+          },
+        },
+        include: {
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          lists: {
+            include: {
+              items: {
+                include: {
+                  createdBy: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                  completedBy: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+                orderBy: {
+                  createdAt: 'desc',
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
+        },
+      })
+
+      if (!household) {
+        res.status(404).json({ error: 'Household not found or access denied' })
+        return
+      }
+
+      res.json(household)
+    } catch (error) {
+      console.error('Error fetching household:', error)
+      res.status(500).json({ error: 'Failed to fetch household' })
+    }
+  }
+)
+
 householdRouter.get('/', async (req: express.Request, res: express.Response): Promise<void> => {
   const { userId } = getAuth(req)
 
@@ -31,20 +108,45 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
               : undefined,
           username: user.username,
         },
-        include: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          username: true,
           households: {
             include: {
               household: {
                 include: {
                   lists: {
                     include: {
-                      items: true,
+                      items: {
+                        include: {
+                          createdBy: {
+                            select: {
+                              id: true,
+                              name: true,
+                            },
+                          },
+                          completedBy: {
+                            select: {
+                              id: true,
+                              name: true,
+                            },
+                          },
+                        },
+                        orderBy: {
+                          createdAt: 'asc',
+                        },
+                      },
                       createdBy: {
                         select: {
                           id: true,
                           name: true,
                         },
                       },
+                    },
+                    orderBy: {
+                      createdAt: 'asc',
                     },
                   },
                   members: {
@@ -131,7 +233,10 @@ householdRouter.post('/', async (req: express.Request, res: express.Response): P
         create: {
           id: user.id,
           email: user.primaryEmailAddress!.emailAddress,
-          name: user.firstName,
+          name:
+            user.firstName || user.lastName
+              ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
+              : undefined,
           username: user.username,
         },
       }),
@@ -144,9 +249,72 @@ householdRouter.post('/', async (req: express.Request, res: express.Response): P
               role: UserRoles.ADMIN,
             },
           },
+          lists: {
+            create: [
+              {
+                name: 'Tasks',
+                type: 'TODO',
+                createdById: user.id,
+                items: {
+                  create: [],
+                },
+              },
+              {
+                name: 'Groceries',
+                type: 'SHOPPING',
+                createdById: user.id,
+                items: {
+                  create: [],
+                },
+              },
+            ],
+          },
         },
         include: {
-          members: true,
+          members: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          lists: {
+            include: {
+              items: {
+                include: {
+                  createdBy: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                  completedBy: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+                orderBy: {
+                  createdAt: 'asc',
+                },
+              },
+              createdBy: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: {
+              createdAt: 'asc',
+            },
+          },
         },
       }),
     ])
