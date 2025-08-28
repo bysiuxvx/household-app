@@ -36,6 +36,17 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
             include: {
               household: {
                 include: {
+                  lists: {
+                    include: {
+                      items: true,
+                      createdBy: {
+                        select: {
+                          id: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
                   members: {
                     include: {
                       user: {
