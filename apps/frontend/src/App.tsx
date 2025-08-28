@@ -7,6 +7,7 @@ import { useState } from 'react'
 import CreateHouseholdModal from './components/create-household-modal.tsx'
 import { HouseholdCard } from './components/household-card.tsx'
 import Household from './components/household.tsx'
+import ManageHouseholdModal from './components/manage-household-modal.tsx'
 import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
 import NoHousehold from './components/ui/no-household.tsx'
@@ -15,6 +16,7 @@ import { selectedHouseholdAtom } from './store'
 
 function App() {
   const [createHouseholdModalOpen, setCreateHouseholdModalOpen] = useState<boolean>(false)
+  const [manageHouseholdModalOpen, setManageHouseholdModalOpen] = useState<boolean>(false)
   const { getToken } = useAuth()
   const { user } = useUser()
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
@@ -45,11 +47,17 @@ function App() {
 
   return (
     <div className='min-h-screen bg-background pb-20'>
-      <Navbar />
+      <Navbar setOpen={setManageHouseholdModalOpen} />
       {createHouseholdModalOpen && (
         <CreateHouseholdModal
           open={createHouseholdModalOpen}
           setOpen={setCreateHouseholdModalOpen}
+        />
+      )}
+      {manageHouseholdModalOpen && (
+        <ManageHouseholdModal
+          open={manageHouseholdModalOpen}
+          setOpen={setManageHouseholdModalOpen}
         />
       )}
 

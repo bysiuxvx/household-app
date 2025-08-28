@@ -6,7 +6,11 @@ import { ArrowLeft, Menu, Settings, Users } from 'lucide-react'
 import { selectedHouseholdAtom } from '../store'
 import { Button } from './ui/button.tsx'
 
-function Navbar() {
+interface NavbarProps {
+  setOpen: (open: boolean) => void
+}
+
+function Navbar({ setOpen }: NavbarProps) {
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
   const queryClient = useQueryClient()
 
@@ -46,7 +50,7 @@ function Navbar() {
             <span>{selectedHousehold?.members?.length} members</span>
           </div>
         </div>
-        <Button variant='ghost' size='sm'>
+        <Button variant='ghost' size='sm' onClick={() => setOpen(true)}>
           <Settings className='h-4 w-4' />
         </Button>
       </div>
