@@ -44,7 +44,6 @@ export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
   const memberCount = household.members?.length || 0
 
   const displayMembers = household.members?.slice(0, 3) || []
-  console.log(displayMembers)
   return (
     <Card
       className='cursor-pointer hover:shadow-md transition-shadow w-full overflow-hidden'
@@ -59,9 +58,8 @@ export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
                 <div
                   key={member.user.id}
                   className='w-7 h-7 rounded-full bg-primary text-primary-foreground text-sm flex items-center justify-center border-2 border-background'
-                  // title={member.user.name || member.user.email || member.user.username}
                 >
-                  {(member.user.name || member.user.email || 'U').charAt(0).toUpperCase()}
+                  {(member.user.username || member.user.email).charAt(0).toUpperCase()}
                 </div>
               ))}
               {memberCount > 3 && (
@@ -86,10 +84,10 @@ export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
 
           <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
             <div className='flex items-center gap-1'>
-              <List className='h-4 w-4' />
+              <ShoppingCart className='h-4 w-4' />
               <span className='font-medium'>{household.lists?.length || 0}</span>
             </div>
-            <span className='text-xs mt-1'>{household.lists?.length === 1 ? 'List' : 'Lists'}</span>
+            <span className='text-xs mt-1'>{household.lists?.length === 1 ? 'Item' : 'Items'}</span>
           </div>
 
           <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
@@ -101,8 +99,8 @@ export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
             </div>
             <span className='text-xs mt-1'>
               {household.lists?.reduce((total, list) => total + list.items.length, 0) === 1
-                ? 'Item'
-                : 'Items'}
+                ? 'Task'
+                : 'Tasks'}
             </span>
           </div>
         </div>
