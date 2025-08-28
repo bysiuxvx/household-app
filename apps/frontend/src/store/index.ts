@@ -1,8 +1,9 @@
-import { atom } from 'jotai';
+import { atom } from 'jotai'
 
 export interface Household {
-  id: string;
-  name: string;
+  id: string
+  name: string
+  members: any[]
 }
 
-export const selectedHouseholdAtom = atom<Household | null>(null);
+export const selectedHouseholdAtom = atom<Household | null>(null)
