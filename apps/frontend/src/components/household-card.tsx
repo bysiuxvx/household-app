@@ -1,4 +1,4 @@
-import { CheckSquare, List, MoreVertical, ShoppingCart, Users } from 'lucide-react'
+import { CheckSquare, MoreVertical, ShoppingCart, Users } from 'lucide-react'
 
 import { Button } from './ui/button.tsx'
 import { Card, CardHeader, CardTitle } from './ui/card.tsx'
@@ -26,6 +26,7 @@ interface HouseholdList {
   name: string
   items: ListItem[]
   createdBy: Pick<User, 'id' | 'name'>
+  type: 'SHOPPING' | 'TODO'
 }
 
 interface HouseholdCardProps {
@@ -42,6 +43,14 @@ interface HouseholdCardProps {
 
 export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
   const memberCount = household.members?.length || 0
+
+  const groceryList: HouseholdList | undefined = household.lists?.find(
+    (list: HouseholdList) => list.type === 'SHOPPING'
+  )
+  const groceryCount: number = groceryList?.items?.length || 0
+
+  const todoList: HouseholdList | undefined = household.lists?.find((list) => list.type === 'TODO')
+  const todoCount: number = todoList?.items?.length || 0
 
   const displayMembers = household.members?.slice(0, 3) || []
   return (
@@ -85,57 +94,19 @@ export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
           <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
             <div className='flex items-center gap-1'>
               <ShoppingCart className='h-4 w-4' />
-              <span className='font-medium'>{household.lists?.length || 0}</span>
+              <span className='font-medium'>{groceryCount || 0}</span>
             </div>
-            <span className='text-xs mt-1'>{household.lists?.length === 1 ? 'Item' : 'Items'}</span>
+            <span className='text-xs mt-1'>{groceryCount === 1 ? 'Item' : 'Items'}</span>
           </div>
 
           <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
             <div className='flex items-center gap-1'>
               <CheckSquare className='h-4 w-4' />
-              <span className='font-medium'>
-                {household.lists?.reduce((total, list) => total + list.items.length, 0) || 0}
-              </span>
+              <span className='font-medium'>{todoCount}</span>
             </div>
-            <span className='text-xs mt-1'>
-              {household.lists?.reduce((total, list) => total + list.items.length, 0) === 1
-                ? 'Task'
-                : 'Tasks'}
-            </span>
+            <span className='text-xs mt-1'>{todoCount === 1 ? 'Task' : 'Tasks'}</span>
           </div>
         </div>
-
-        {household.lists && household.lists.length > 0 && (
-          <div className='mt-4'>
-            <h4 className='text-sm font-medium mb-2'>Recent Lists</h4>
-            <div className='space-y-2'>
-              {household.lists.slice(0, 2).map((list) => (
-                <div
-                  key={list.id}
-                  className='flex items-center justify-between p-2 bg-muted/10 rounded-md hover:bg-muted/20 transition-colors'
-                >
-                  <span className='text-sm font-medium truncate pr-2'>{list.name}</span>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-xs px-2 py-1 bg-muted/30 rounded-full'>
-                      {list.items.length} {list.items.length === 1 ? 'item' : 'items'}
-                    </span>
-                    {list.createdBy?.name && (
-                      <span className='text-xs text-muted-foreground'>
-                        by {list.createdBy.name.split(' ')[0]}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-              {household.lists.length > 2 && (
-                <div className='text-center text-sm text-muted-foreground pt-1'>
-                  +{household.lists.length - 2} more{' '}
-                  {household.lists.length - 2 === 1 ? 'list' : 'lists'}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </CardHeader>
     </Card>
   )
