@@ -285,7 +285,6 @@ function Household() {
     },
   })
 
-  // Function to fetch and update a single household
   const refreshHousehold = async () => {
     if (!selectedHousehold) return
 
@@ -299,18 +298,14 @@ function Household() {
 
       if (response.ok) {
         const updatedHousehold = await response.json()
-
-        // Update the selectedHouseholdAtom with fresh data
         setHousehold(updatedHousehold)
 
-        // Also update the query cache in case it's being used elsewhere
         queryClient.setQueryData(['household', selectedHousehold.id], updatedHousehold)
-
         return updatedHousehold
       }
     } catch (error) {
       console.error('Error refreshing household:', error)
-      throw error // Re-throw to allow error handling in the calling function
+      throw error
     }
   }
 
@@ -393,7 +388,6 @@ function Household() {
     },
   })
 
-  // Handler functions
   const handleAddItem = (itemData: { text: string; priority?: Priority; type: ItemType }) => {
     const listType = itemData.type.toUpperCase() as 'TODO' | 'SHOPPING'
     const list = listType === 'TODO' ? todoList : shoppingList
@@ -406,7 +400,7 @@ function Household() {
     const newItem = {
       text: itemData.text,
       listId: list.id,
-      priority: (itemData.priority?.toUpperCase() || 'MEDIUM') as 'LOW' | 'MEDIUM' | 'HIGH',
+      priority: (itemData.priority?.toUpperCase() || 'MEDIUM') as Priority,
     }
 
     addItemMutation.mutate(newItem, {
@@ -451,8 +445,6 @@ function Household() {
       </div>
     )
   }
-
-  // Error handling is now done at the mutation level
 
   return (
     <Tabs defaultValue='todos' className='space-y-4'>
