@@ -1,6 +1,7 @@
 import { useAuth } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import config from '../config'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -53,7 +54,7 @@ function CreateHouseholdModal({ open, setOpen }: ModalProps) {
   const createHouseholdMutation = useMutation({
     mutationFn: async (data: FormValues) => {
       const token = await getToken()
-      const response = await fetch('http://localhost:3000/api/households', {
+      const response = await fetch(`${config.apiBaseUrl}/api/households`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
