@@ -1,14 +1,16 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import CreateHouseholdModal from './components/create-household-modal.tsx'
 import { HouseholdCard } from './components/household-card.tsx'
+import Household from './components/household.tsx'
 import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
 import NoHousehold from './components/ui/no-household.tsx'
+import config from './config'
 import { selectedHouseholdAtom } from './store'
 
 function App() {
@@ -25,7 +27,7 @@ function App() {
     queryKey: ['households'],
     queryFn: async () => {
       const token = await getToken()
-      const response = await fetch('http://localhost:3000/api/households', {
+      const response = await fetch(`${config.apiBaseUrl}/api/households`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -94,6 +96,7 @@ function App() {
             </div>
           </>
         )}
+        {selectedHousehold && <Household />}
       </main>
     </div>
   )
