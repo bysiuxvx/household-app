@@ -1,1 +1,3 @@
-export type Priority = 'low' | 'medium' | 'high'
+export type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
+
+export type ItemType = 'TODO' | 'GROCERY';
