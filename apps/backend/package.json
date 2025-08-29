@@ -7,7 +7,7 @@
     "dev": "nodemon --watch src --exec ts-node src/server.ts",
     "build": "tsc --outDir dist && prisma generate",
     "start": "node dist/server.js",
-    "vercel-build": "npm run build",
+    "vercel-build": "npm install && npm run build && npx prisma generate",
     "lint": "eslint --config eslint.config.mjs .",
     "lint:fix": "eslint --config eslint.config.mjs --fix .",
     "type-check": "tsc --noEmit"
