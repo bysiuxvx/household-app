@@ -40,6 +40,7 @@ type FormValues = {
 
 function ManageHouseholdModal({ open, setOpen }: ModalProps) {
   const [isEditingSecret, setIsEditingSecret] = useState<boolean>(false)
+  const [verificationCode, setVerificationCode] = useState<string | undefined>(undefined)
   const [currentHousehold, setCurrentHousehold] = useAtom(selectedHouseholdAtom)
   const { getToken } = useAuth()
 
@@ -101,6 +102,37 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
       setIsEditingSecret(false)
     } catch (error) {
       console.error('Error updating household secret:', error)
+    }
+  }
+
+  const handleGenerateCode = async () => {
+    const token = await getToken()
+    const url = `${config.apiBaseUrl}/api/verification/generate`
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ householdId: currentHousehold!.id }),
+      })
+
+      const responseData = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        console.error('Error response:', {
+          status: response.status,
+          statusText: response.statusText,
+          response: responseData,
+        })
+        throw new Error(responseData.error || 'Failed to generate code')
+      }
+
+      setVerificationCode(responseData.code)
+    } catch (error) {
+      console.error('Error generating code:', error)
     }
   }
 
@@ -172,11 +204,16 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                 variant='outline'
                 className='w-auto'
                 disabled={!currentHousehold?.secret}
-                onClick={() => {}}
+                onClick={handleGenerateCode}
               >
                 Generate code
               </Button>
-              <Input type='text' placeholder='Verification code' disabled />
+              <Input
+                type='text'
+                placeholder='Verification code'
+                disabled
+                value={verificationCode || undefined}
+              />
             </div>
           </div>
         )}
