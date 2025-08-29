@@ -5,7 +5,7 @@ import { CheckSquare, ShoppingCart } from 'lucide-react'
 import { useCallback } from 'react'
 
 import config from '../config'
-import type { ItemType, Priority } from '../models/models.ts'
+import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
 import { selectedHouseholdAtom } from '../store/store.ts'
 import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
@@ -14,50 +14,39 @@ import { Card, CardContent, CardDescription, CardTitle } from './ui/card.tsx'
 import { Skeleton } from './ui/skeleton.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
 
-interface User {
-  id: string
-  name: string | null
-  email: string
-  username: string | null
-}
+// interface User {
+//   id: string
+//   name: string | null
+//   email: string
+//   username: string | null
+// }
 
-interface ListItem {
-  id: string
-  text: string
-  description: string | null
-  completed: boolean
-  completedAt: string | null
-  priority: Priority | null
-  dueDate: string | null
-  listId: string
-  createdById: string
-  createdBy: Pick<User, 'id' | 'name'>
-  completedBy: Pick<User, 'id' | 'name'> | null
-  createdAt: string
-  updatedAt: string
-}
+// interface ListItem {
+//   id: string
+//   text: string
+//   description: string | null
+//   completed: boolean
+//   completedAt: string | null
+//   priority: Priority | null
+//   dueDate: string | null
+//   listId: string
+//   createdById: string
+//   createdBy: Pick<User, 'id' | 'name'>
+//   completedBy: Pick<User, 'id' | 'name'> | null
+//   createdAt: string
+//   updatedAt: string
+//   type: ItemType
+// }
 
-interface List {
-  id: string
-  name: string
-  type: ItemType
-  householdId: string
-  createdById: string
-  items: ListItem[]
-  createdBy: Pick<User, 'id' | 'name'>
-}
-
-interface HouseholdData {
-  id: string
-  name: string
-  description: string | null
-  members: Array<{
-    userId: string
-    role: string
-    user: Pick<User, 'id' | 'name' | 'email' | 'username'>
-  }>
-  lists: List[]
-}
+// interface List {
+//   id: string
+//   name: string
+//   type: ItemType
+//   householdId: string
+//   createdById: string
+//   items: ListItem[]
+//   createdBy: Pick<User, 'id' | 'name'>
+// }
 
 async function createListItem(
   newItem: {
@@ -134,7 +123,7 @@ async function deleteListItem(itemId: string, getToken: () => Promise<string>) {
   }
 }
 
-function getListByType(lists: List[] = [], type: 'TODO' | 'SHOPPING') {
+function getListByType(lists: List[] = [], type: ListType) {
   if (!lists) return null
   return lists.find((list) => list.type.toUpperCase() === type.toUpperCase())
 }
@@ -143,16 +132,10 @@ function Household() {
   const { user } = useUser()
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
-  const [selectedHousehold, setHousehold] = useAtom(selectedHouseholdAtom)
+  const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
 
-  if (!selectedHousehold) {
-    return <div>No household selected</div>
-  }
-
-  const household = selectedHousehold as HouseholdData
-
-  const todoList = getListByType(household.lists, 'TODO')
-  const shoppingList = getListByType(household.lists, 'SHOPPING')
+  const todoList = getListByType(selectedHousehold.lists, 'TODO')
+  const shoppingList = getListByType(selectedHousehold.lists, 'GROCERY')
 
   const priorityOrder = {
     HIGH: 1,
@@ -181,10 +164,13 @@ function Household() {
       return createListItem(newItem, () => Promise.resolve(token || ''))
     },
     onMutate: async (newItem) => {
-      await queryClient.cancelQueries({ queryKey: ['household', household.id] })
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold.id] })
 
       // Snapshot the previous value
-      const previousHousehold = queryClient.getQueryData<HouseholdData>(['household', household.id])
+      const previousHousehold = queryClient.getQueryData<HouseholdData>([
+        'household',
+        selectedHousehold.id,
+      ])
 
       if (previousHousehold) {
         // Generate a temporary ID for the optimistic update
@@ -214,7 +200,7 @@ function Household() {
           return list
         })
 
-        queryClient.setQueryData(['household', household.id], {
+        queryClient.setQueryData(['household', selectedHousehold.id], {
           ...previousHousehold,
           lists: updatedLists,
         })
@@ -225,7 +211,7 @@ function Household() {
     onError: (err, newItem, context) => {
       // Rollback on error
       if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', household.id], context.previousHousehold)
+        queryClient.setQueryData(['household', selectedHousehold.id], context.previousHousehold)
       }
     },
     onSettled: () => {
@@ -239,9 +225,12 @@ function Household() {
       return toggleListItem(itemId, completed, () => Promise.resolve(token || ''))
     },
     onMutate: async ({ itemId, completed }) => {
-      await queryClient.cancelQueries({ queryKey: ['household', household.id] })
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold.id] })
 
-      const previousHousehold = queryClient.getQueryData<HouseholdData>(['household', household.id])
+      const previousHousehold = queryClient.getQueryData<HouseholdData>([
+        'household',
+        selectedHousehold.id,
+      ])
 
       if (previousHousehold) {
         const updatedLists = previousHousehold.lists.map((list) => ({
@@ -260,7 +249,7 @@ function Household() {
           ),
         }))
 
-        queryClient.setQueryData(['household', household.id], {
+        queryClient.setQueryData(['household', selectedHousehold.id], {
           ...previousHousehold,
           lists: updatedLists,
         })
@@ -270,7 +259,7 @@ function Household() {
     },
     onError: (err, variables, context) => {
       if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', household.id], context.previousHousehold)
+        queryClient.setQueryData(['household', selectedHousehold.id], context.previousHousehold)
       }
     },
     onSettled: () => {
@@ -291,7 +280,8 @@ function Household() {
 
       if (response.ok) {
         const updatedHousehold = await response.json()
-        setHousehold(updatedHousehold)
+        // @ts-ignore
+        setSelectedHousehold(updatedHousehold)
 
         queryClient.setQueryData(['household', selectedHousehold.id], updatedHousehold)
         return updatedHousehold
@@ -318,14 +308,14 @@ function Household() {
       })
     },
     onMutate: async ({ itemId, text }) => {
-      await queryClient.cancelQueries({ queryKey: ['household', household?.id] })
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold?.id] })
       const previousHousehold = queryClient.getQueryData<HouseholdData>([
         'household',
-        household?.id,
+        selectedHousehold?.id,
       ])
 
       if (previousHousehold) {
-        queryClient.setQueryData(['household', household?.id], {
+        queryClient.setQueryData(['household', selectedHousehold?.id], {
           ...previousHousehold,
           lists: previousHousehold.lists.map((list) => ({
             ...list,
@@ -339,7 +329,7 @@ function Household() {
     },
     onError: (err, variables, context) => {
       if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', household?.id], context.previousHousehold)
+        queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
     },
     onSettled: () => {
@@ -353,9 +343,12 @@ function Household() {
       return deleteListItem(itemId, () => Promise.resolve(token || ''))
     },
     onMutate: async (itemId) => {
-      await queryClient.cancelQueries({ queryKey: ['household', household.id] })
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold.id] })
 
-      const previousHousehold = queryClient.getQueryData<HouseholdData>(['household', household.id])
+      const previousHousehold = queryClient.getQueryData<HouseholdData>([
+        'household',
+        selectedHousehold.id,
+      ])
 
       if (previousHousehold) {
         const updatedLists = previousHousehold.lists.map((list) => ({
@@ -363,7 +356,7 @@ function Household() {
           items: list.items.filter((item) => item.id !== itemId),
         }))
 
-        queryClient.setQueryData(['household', household.id], {
+        queryClient.setQueryData(['household', selectedHousehold.id], {
           ...previousHousehold,
           lists: updatedLists,
         })
@@ -373,7 +366,7 @@ function Household() {
     },
     onError: (err, variables, context) => {
       if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', household.id], context.previousHousehold)
+        queryClient.setQueryData(['household', selectedHousehold.id], context.previousHousehold)
       }
     },
     onSettled: () => {
@@ -381,7 +374,7 @@ function Household() {
     },
   })
 
-  const handleAddItem = (itemData: { text: string; priority?: Priority; type: ItemType }) => {
+  const handleAddItem = (itemData: { text: string; priority?: Priority; type: ListType }) => {
     const listType = itemData.type.toUpperCase() as 'TODO' | 'SHOPPING'
     const list = listType === 'TODO' ? todoList : shoppingList
 
@@ -400,7 +393,6 @@ function Household() {
       onError: (error) => {
         console.error('Error adding item:', error)
       },
-      onSuccess: (data) => {},
     })
   }
 
@@ -414,10 +406,10 @@ function Household() {
 
   const handleEditItem = useCallback(
     (itemId: string, text: string) => {
-      if (!household) return Promise.reject(new Error('No household selected'))
+      if (!selectedHousehold) return Promise.reject(new Error('No household selected'))
       return editItemMutation.mutateAsync({ itemId, text })
     },
-    [household, editItemMutation]
+    [selectedHousehold, editItemMutation]
   )
 
   if (!selectedHousehold) {

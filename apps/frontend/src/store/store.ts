@@ -1,24 +1,13 @@
 import { useUser } from '@clerk/clerk-react'
-import { atom, useAtom } from 'jotai'
+import { type Atom, atom, useAtom } from 'jotai'
 
-import type { UserRole } from '../models/models.ts'
-
-export interface Household {
-  id: string
-  name: string
-  secret: string
-  members: Array<{
-    id: string
-    role: UserRole
-    [key: string]: any
-  }>
-}
+import type { Household } from '../models/models.ts'
 
 export interface UserRoleInfo {
   isAdmin: boolean
 }
 
-export const selectedHouseholdAtom = atom<Household | null>(null)
+export const selectedHouseholdAtom: Atom<Household> = atom<Household | null>(null)
 
 export const useUserRole = (): UserRoleInfo => {
   const { user } = useUser()
