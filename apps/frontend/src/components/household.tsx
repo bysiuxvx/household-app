@@ -81,6 +81,7 @@ async function createListItem(
       description: newItem.description,
       priority: newItem.priority,
       dueDate: newItem.dueDate,
+      listId: newItem.listId,
     }),
   })
 
