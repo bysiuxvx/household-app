@@ -10,26 +10,33 @@ datasource db {
 }
 
 model Household {
-  id          String   @id @default(uuid())
+  id          String            @id @default(uuid())
   name        String
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  secret      String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
-  members UserOnHousehold[]
-  lists   List[]
+  members     UserOnHousehold[]
+  lists       List[]
+
+  @@map("Household")
 }
 
 model User {
-  id        String   @id // Clerk User ID
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String      @id // Clerk User ID
+  email          String      @unique
+  name           String?
+  username       String?     @unique
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
-  households   UserOnHousehold[]
-  createdLists List[]            @relation("ListCreator")
-  listItems    ListItem[]
+  households     UserOnHousehold[]
+  createdItems   ListItem[]  @relation("ListItemCreator")
+  completedItems ListItem[]  @relation("ListItemCompleter")
+  createdLists   List[]      @relation("ListCreator")
+  
+  @@map("User")
 }
 
 // relationship table between User and Household
@@ -40,56 +47,82 @@ model UserOnHousehold {
   householdId String
   role        UserRole  @default(MEMBER)
   joinedAt    DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@id([userId, householdId])
   @@index([userId], name: "UserOnHousehold_userId_idx")
   @@index([householdId], name: "UserOnHousehold_householdId_idx")
-}
-
-enum ListType {
-  TODO
-  GROCERY
-  SHOPPING
-  OTHER
-}
-
-enum UserRole {
-  ADMIN
-  MEMBER
+  @@map("UserOnHousehold")
 }
 
 model List {
   id          String   @id @default(uuid())
-  title       String
+  name        String
   description String?
   type        ListType @default(TODO)
   isArchived  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  household   Household  @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
   householdId String
-  createdBy   User       @relation("ListCreator", fields: [createdById], references: [id])
+  createdBy   User      @relation("ListCreator", fields: [createdById], references: [id])
   createdById String
   items       ListItem[]
 
   @@index([householdId], name: "List_householdId_idx")
   @@index([createdById], name: "List_createdById_idx")
+  @@map("List")
 }
 
 model ListItem {
-  id          String    @id @default(uuid())
-  title       String
+  id          String   @id @default(uuid())
+  text        String
   description String?
-  isCompleted Boolean   @default(false)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  priority    Priority?
   dueDate     DateTime?
+  list        List     @relation(fields: [listId], references: [id], onDelete: Cascade)
+  listId      String
+  createdBy   User     @relation("ListItemCreator", fields: [createdById], references: [id])
+  createdById String
+  completedBy User?    @relation("ListItemCompleter", fields: [completedById], references: [id])
+  completedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([listId])
+  @@map("ListItem")
+}
+
+enum ListType {
+  TODO
+  SHOPPING
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model VerificationCode {
+  id          String    @id @default(uuid())
+  code        String
+  householdId String    @unique
+  expiresAt   DateTime
+  used        Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  list        List   @relation(fields: [listId], references: [id], onDelete: Cascade)
-  listId      String
-  createdBy   User   @relation(fields: [createdById], references: [id])
-  createdById String
+  @@index([householdId, code], name: "verification_code_lookup")
+  @@map("VerificationCode")
+}
 
-  @@index([listId], name: "ListItem_listId_idx")
+enum UserRole {
+  ADMIN
+  MEMBER
 }

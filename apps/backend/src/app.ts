@@ -1,26 +1,25 @@
-import { Household } from '@household/shared'
+import { clerkMiddleware } from '@clerk/express'
+import cors from 'cors'
 import express, { Express } from 'express'
 
 import { householdRouter } from './routes/householdRoutes'
-
+import { listItemRouter } from './routes/listItemRoutes'
+import { verificationRouter } from './routes/verificationRoute'
 
 const app: Express = express()
 
+app.use(cors())
+
 app.use(express.json())
 
-// Use the household routes
+app.use('/api', clerkMiddleware())
+
 app.use('/api/households', householdRouter)
+app.use('/api', listItemRouter)
+app.use('/api/verification', verificationRouter)
 
 app.get('/', (req, res) => {
-  const household: Household = {
-    id: '1',
-    name: 'My Household',
-    members: ['User 1', 'User 2'],
-  }
-
-  res.json(household)
+  res.json({ message: 'Hello World!' })
 })
-
-app.use('/household', householdRouter)
 
 export default app

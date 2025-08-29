@@ -1,20 +1,22 @@
 {
   "name": "household-app",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "build": "pnpm -r build",
+    "build:shared": "pnpm --filter @household/shared build",
     "dev": "pnpm --filter \"@household/*\" dev",
-    "dev:all": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
+    "dev:all": "pnpm build:shared && concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
     "start": "pnpm dev:all",
     "lint": "pnpm -r --filter \"!@household/shared\" lint",
     "lint:fix": "pnpm -r --filter \"!@household/shared\" lint:fix",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,md,mdx,html,css,scss}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,mdx,html,css,scss}\" --ignore-path .gitignore",
+    "fix": "pnpm lint:fix && pnpm format",
     "typecheck": "pnpm -r typecheck"
   },
   "devDependencies": {
