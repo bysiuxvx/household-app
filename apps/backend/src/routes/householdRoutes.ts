@@ -1,13 +1,72 @@
 import { User, clerkClient, getAuth } from '@clerk/express'
 import express, { Router } from 'express'
 
-import { HOUSEHOLD_MIN_NAME_LENGTH, UserRoles } from '@household/shared'
+import {
+  HOUSEHOLD_MIN_NAME_LENGTH,
+  HOUSEHOLD_MIN_SECRET_LENGTH,
+  UserRoles,
+} from '@household/shared'
 
 import prisma from '../utils/prisma-client'
 
 export const householdRouter: Router = express.Router()
 
-//  single household by ID
+// Update household secret
+householdRouter.patch(
+  '/:householdId/secret',
+  async (req: express.Request, res: express.Response): Promise<void> => {
+    const { userId } = getAuth(req)
+    const { householdId } = req.params
+    const { secret } = req.body
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    if (!secret || typeof secret !== 'string' || secret.length < HOUSEHOLD_MIN_SECRET_LENGTH) {
+      res.status(400).json({
+        error: `Secret must be at least ${HOUSEHOLD_MIN_SECRET_LENGTH} characters long`,
+      })
+      return
+    }
+
+    try {
+      // chec if user is admin of the household
+      const membership = await prisma.userOnHousehold.findFirst({
+        where: {
+          userId,
+          householdId,
+          role: UserRoles.ADMIN,
+        },
+      })
+
+      if (!membership) {
+        res.status(403).json({ error: 'Forbidden: Only household admins can update the secret' })
+        return
+      }
+
+      const updatedHousehold = await prisma.household.update({
+        where: { id: householdId },
+        data: { secret },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          secret: true,
+          updatedAt: true,
+        },
+      })
+
+      res.json(updatedHousehold)
+    } catch (error) {
+      console.error('Error updating household secret:', error)
+      res.status(500).json({ error: 'Failed to update household secret' })
+    }
+  }
+)
+
+// Get single household by ID
 householdRouter.get(
   '/:householdId',
   async (req: express.Request, res: express.Response): Promise<void> => {
