@@ -10,14 +10,15 @@ datasource db {
 }
 
 model Household {
-  id          String   @id @default(uuid())
+  id          String            @id @default(uuid())
   name        String
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  secret      String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
-  members UserOnHousehold[]
-  lists   List[]
+  members     UserOnHousehold[]
+  lists       List[]
 
   @@map("Household")
 }
@@ -105,6 +106,20 @@ enum Priority {
   LOW
   MEDIUM
   HIGH
+  URGENT
+}
+
+model VerificationCode {
+  id          String    @id @default(uuid())
+  code        String
+  householdId String    @unique
+  expiresAt   DateTime
+  used        Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([householdId, code], name: "verification_code_lookup")
+  @@map("VerificationCode")
 }
 
 enum UserRole {
