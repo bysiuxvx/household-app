@@ -139,14 +139,6 @@ function getListByType(lists: List[] = [], type: 'TODO' | 'SHOPPING') {
   return lists.find((list) => list.type.toUpperCase() === type.toUpperCase())
 }
 
-function getPriority(
-  priority: string | null | undefined,
-  defaultValue: Priority = 'MEDIUM'
-): Priority {
-  const prio = priority?.toLowerCase()
-  return prio === 'low' || prio === 'high' ? prio : defaultValue
-}
-
 function Household() {
   const { user } = useUser()
   const { getToken } = useAuth()
