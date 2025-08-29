@@ -15,6 +15,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
+    "types": ["vite/client"],
 
     /* Linting - Disabled for initial testing */
     "strict": false,
@@ -29,5 +30,6 @@
       "@household/shared/*": ["../../packages/shared/src/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "vite-env.d.ts"],
+  "exclude": ["node_modules", "dist"]
 }

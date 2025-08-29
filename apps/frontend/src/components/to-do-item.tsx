@@ -1,7 +1,7 @@
 import { Check, Edit2, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 
-import type { ItemType, Priority } from '../models/models.ts'
+import type { ListType, Priority } from '../models/models.ts'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
 import { Card, CardContent } from './ui/card.tsx'
@@ -15,14 +15,14 @@ interface TodoItemProps {
     completed: boolean
     assignedTo?: string
     priority?: Priority
-    type: ItemType
   }
   onToggle: (completed: boolean) => void
   onEdit: (id: string, text: string) => void
   onDelete: (id: string) => void
+  typeOfList: ListType
 }
 
-export function TodoItem({ item, onToggle, onEdit, onDelete }: TodoItemProps) {
+export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(item.text)
 
@@ -82,7 +82,7 @@ export function TodoItem({ item, onToggle, onEdit, onDelete }: TodoItemProps) {
                   {item.text}
                 </p>
                 <div className='flex items-center gap-2'>
-                  {item.priority && item.type === 'TODO' && (
+                  {item.priority && typeOfList === 'TODO' && (
                     <Badge
                       variant='secondary'
                       className={`text-xs ${priorityColors[item.priority] || ''}`}
@@ -90,7 +90,7 @@ export function TodoItem({ item, onToggle, onEdit, onDelete }: TodoItemProps) {
                       {item.priority}
                     </Badge>
                   )}
-                  {item.assignedTo && item.type === 'TODO' && (
+                  {item.assignedTo && typeOfList === 'TODO' && (
                     <Badge variant='outline' className='text-xs'>
                       {item.assignedTo}
                     </Badge>

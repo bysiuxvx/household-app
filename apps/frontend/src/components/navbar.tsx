@@ -15,6 +15,7 @@ function Navbar({ setOpen }: NavbarProps) {
   const queryClient = useQueryClient()
 
   const handleBackClick = () => {
+    // @ts-ignore
     setSelectedHousehold(null)
     queryClient.invalidateQueries({ queryKey: ['households'] })
   }

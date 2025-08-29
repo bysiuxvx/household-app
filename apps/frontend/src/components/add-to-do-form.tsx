@@ -1,15 +1,17 @@
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
+import * as React from 'react'
 
-import type { ItemType, Priority } from '../models/models.ts'
+import type { ListType, Priority } from '../models/models.ts'
 import { Button } from './ui/button.tsx'
 import { Card, CardContent } from './ui/card.tsx'
 import { Input } from './ui/input.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select.tsx'
 
 interface AddTodoFormProps {
-  onAdd: (item: { text: string; priority?: Priority; type: string }) => void
-  type: ItemType
+  // onAdd: ({ text, priority, type }: { text: string; priority?: Priority; type: ListType }) => void
+  onAdd: ({ text, priority, type }: { text: string; priority?: Priority; type: ListType }) => void
+  type: ListType
   placeholder: string
   isSubmitting?: boolean
 }
