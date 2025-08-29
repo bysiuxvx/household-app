@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "build": "pnpm -r build",
+    "build:shared": "pnpm --filter @household/shared build",
     "dev": "pnpm --filter \"@household/*\" dev",
     "dev:all": "concurrently \"pnpm --filter frontend dev\" \"pnpm --filter backend dev\"",
     "start": "pnpm dev:all",
