@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api"
+    }
+  ],
+  "buildCommand": "pnpm install && cd packages/shared && pnpm build && cd ../../apps/backend && pnpm build",
+  "outputDirectory": "./apps/backend/dist",
+  "build": {
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+}

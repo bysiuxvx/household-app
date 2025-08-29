@@ -19,7 +19,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,md,mdx,html,css,scss}\" --ignore-path .gitignore",
     "fix": "pnpm lint:fix && pnpm format",
     "typecheck": "pnpm -r typecheck",
-    "vercel-build": "pnpm run build:vercel"
+    "vercel-build": "pnpm install && pnpm -r --filter @household/shared build && cd apps/backend && pnpm install && pnpm run build"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.0",
