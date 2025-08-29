@@ -1,13 +1,13 @@
 {
   "name": "backend",
   "description": "",
-  "main": "dist/server.js",
+  "main": "dist/src/app.js",
   "type": "commonjs",
   "scripts": {
-    "dev": "nodemon --watch src --exec ts-node src/server.ts",
-    "build": "tsc --outDir dist && prisma generate",
-    "start": "node dist/server.js",
-    "vercel-build": "npm install && npm run build && npx prisma generate",
+    "dev": "nodemon --watch src --exec ts-node src/app.ts",
+    "build": "tsc --outDir dist && prisma generate && xcopy /E /I /Y src\\generated dist\\src\\generated",
+    "start": "node dist/src/app.js",
+    "vercel-build": "pnpm install && pnpm run build",
     "lint": "eslint --config eslint.config.mjs .",
     "lint:fix": "eslint --config eslint.config.mjs --fix .",
     "type-check": "tsc --noEmit"
