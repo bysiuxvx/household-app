@@ -93,8 +93,12 @@ export async function validateVerificationCode(
  */
 export async function verifyAndJoinHousehold(code: string, secret: string, userId: string) {
   // Find the verification code
-  const verification = await prisma.verificationCode.findUnique({
-    where: { code },
+  const verification = await prisma.verificationCode.findFirst({
+    where: { 
+      code,
+      used: false,
+      expiresAt: { gt: new Date() }
+    },
   })
 
   // Check if code exists and isn't expired

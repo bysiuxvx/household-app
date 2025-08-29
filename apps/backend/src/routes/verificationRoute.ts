@@ -34,9 +34,11 @@ verificationRouter.post('/generate', async (req, res) => {
   try {
     const code = await createVerificationCode(householdId)
     res.json({ code })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error generating verification code:', error)
-    res.status(500).json({ error: 'Failed to generate verification code' })
+    const errorMessage =
+      error instanceof Error ? error.message : 'Failed to generate verification code'
+    res.status(500).json({ error: errorMessage })
   }
 })
 
@@ -54,13 +56,16 @@ verificationRouter.post('/validate', async (req, res) => {
     res.json({
       success: true,
     })
-  } catch (error) {
-    if (error.message === 'Invalid or expired verification code') {
-      return res.status(400).json({ error: error.message })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
+
+    if (errorMessage === 'Invalid or expired verification code') {
+      return res.status(400).json({ error: errorMessage })
     }
-    if (error.message === 'User is already a member of this household') {
-      return res.status(409).json({ error: error.message })
+    if (errorMessage === 'User is already a member of this household') {
+      return res.status(409).json({ error: errorMessage })
     }
+
     console.error('Verification error:', error)
     res.status(500).json({ error: 'Failed to verify and join household' })
   }
