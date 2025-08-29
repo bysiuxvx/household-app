@@ -63,7 +63,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     reset({ secret: currentHousehold?.secret || undefined })
   }
 
-  const handleSave = async (data: FormValues) => {
+  const handleSaveSecret = async (data: FormValues) => {
     if (!currentHousehold) {
       console.error('No current household')
       return
@@ -139,7 +139,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                     <Button
                       size='sm'
                       variant='ghost'
-                      onClick={handleSubmit(handleSave)}
+                      onClick={handleSubmit(handleSaveSecret)}
                       className='h-8 w-8 p-0'
                       type='button'
                     >
