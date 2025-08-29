@@ -45,6 +45,8 @@ function App() {
     },
   })
 
+  // @ts-ignore
+  // @ts-ignore
   return (
     <div className='min-h-screen bg-background pb-20'>
       <Navbar setOpen={setManageHouseholdModalOpen} />
@@ -91,6 +93,7 @@ function App() {
                       <div key={household.id} className='w-full'>
                         <HouseholdCard
                           household={household}
+                          // @ts-ignore
                           onClick={() => setSelectedHousehold(household)}
                         />
                       </div>

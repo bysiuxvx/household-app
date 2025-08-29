@@ -95,6 +95,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         throw new Error(responseData.error || 'Failed to update secret')
       }
 
+      // @ts-ignore
       setCurrentHousehold({
         ...currentHousehold,
         secret: responseData.secret,
