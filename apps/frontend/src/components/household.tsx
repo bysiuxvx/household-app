@@ -470,10 +470,10 @@ function Household() {
                 key={item.id}
                 item={{
                   ...item,
-                  type: 'TODO',
                   assignedTo: item.completedBy?.name || item.createdBy?.name || 'You',
                   priority: item.priority as Priority | undefined,
                 }}
+                typeOfList='TODO'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
@@ -490,10 +490,10 @@ function Household() {
                 key={item.id}
                 item={{
                   ...item,
-                  type: 'TODO',
                   assignedTo: item.completedBy?.name || item.createdBy?.name || 'You',
                   priority: item.priority as Priority | undefined,
                 }}
+                typeOfList='TODO'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
@@ -529,10 +529,10 @@ function Household() {
                 key={item.id}
                 item={{
                   ...item,
-                  type: 'GROCERY',
                   priority: item.priority || undefined,
                   assignedTo: item.completedBy?.name || item.createdBy?.name || undefined,
                 }}
+                typeOfList='GROCERY'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
@@ -549,9 +549,9 @@ function Household() {
                 key={item.id}
                 item={{
                   ...item,
-                  type: 'GROCERY',
                   assignedTo: item.completedBy?.name || item.createdBy?.name || undefined,
                 }}
+                typeOfList='GROCERY'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
