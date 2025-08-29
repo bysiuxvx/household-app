@@ -40,7 +40,8 @@ type FormValues = {
 
 function ManageHouseholdModal({ open, setOpen }: ModalProps) {
   const [isEditingSecret, setIsEditingSecret] = useState<boolean>(false)
-  const [verificationCode, setVerificationCode] = useState<string | undefined>(undefined)
+  const [verificationCode, setVerificationCode] = useState<string | null>(null)
+  const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   const [currentHousehold, setCurrentHousehold] = useAtom(selectedHouseholdAtom)
   const { getToken } = useAuth()
 
@@ -109,6 +110,8 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     const token = await getToken()
     const url = `${config.apiBaseUrl}/api/verification/generate`
 
+    setIsGeneratingCode(true)
+
     try {
       const response = await fetch(url, {
         method: 'POST',
@@ -133,6 +136,8 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
       setVerificationCode(responseData.code)
     } catch (error) {
       console.error('Error generating code:', error)
+    } finally {
+      setIsGeneratingCode(false)
     }
   }
 
@@ -203,10 +208,10 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                 type='button'
                 variant='outline'
                 className='w-auto'
-                disabled={!currentHousehold?.secret}
+                disabled={!currentHousehold?.secret || isGeneratingCode}
                 onClick={handleGenerateCode}
               >
-                Generate code
+                {isGeneratingCode ? 'Generating...' : 'Generate code'}
               </Button>
               <Input
                 type='text'
