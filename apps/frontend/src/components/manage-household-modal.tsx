@@ -93,7 +93,6 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         throw new Error(responseData.error || 'Failed to update secret')
       }
 
-      console.log('Update successful:', responseData)
       setCurrentHousehold({
         ...currentHousehold,
         secret: responseData.secret,
@@ -173,9 +172,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                 variant='outline'
                 className='w-auto'
                 disabled={!currentHousehold?.secret}
-                onClick={() => {
-                  console.log('click')
-                }}
+                onClick={() => {}}
               >
                 Generate code
               </Button>
