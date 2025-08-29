@@ -12,7 +12,7 @@ import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
 import NoHousehold from './components/ui/no-household.tsx'
 import config from './config'
-import { selectedHouseholdAtom } from './store'
+import { selectedHouseholdAtom } from './store/store.ts'
 
 function App() {
   const [createHouseholdModalOpen, setCreateHouseholdModalOpen] = useState<boolean>(false)

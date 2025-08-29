@@ -6,7 +6,7 @@ import { useCallback } from 'react'
 
 import config from '../config'
 import type { ItemType, Priority } from '../models/models.ts'
-import { selectedHouseholdAtom } from '../store'
+import { selectedHouseholdAtom } from '../store/store.ts'
 import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'

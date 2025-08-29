@@ -1,12 +1,12 @@
 import { useAuth } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import config from '../config'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
-import { HOUSEHOLD_MIN_NAME_LENGTH } from '@household/shared/types/household-model'
+import { HOUSEHOLD_MIN_NAME_LENGTH } from '@household/shared'
 
+import config from '../config'
 import { Button } from './ui/button.tsx'
 import {
   Dialog,

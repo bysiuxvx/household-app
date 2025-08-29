@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { ArrowLeft, Menu, Settings, Users } from 'lucide-react'
 
-import { selectedHouseholdAtom } from '../store'
+import { selectedHouseholdAtom } from '../store/store.ts'
 import { Button } from './ui/button.tsx'
 
 interface NavbarProps {

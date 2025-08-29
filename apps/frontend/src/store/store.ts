@@ -6,6 +6,7 @@ import type { UserRole } from '../models/models.ts'
 export interface Household {
   id: string
   name: string
+  secret: string
   members: Array<{
     id: string
     role: UserRole
