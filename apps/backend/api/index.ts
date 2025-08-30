@@ -1,5 +1,3 @@
-const app = require('../dist/app').default;
+import app from '../src/app'
 
-module.exports = async (req: any, res: any) => {
-  return app(req, res);
-};
+export default app
