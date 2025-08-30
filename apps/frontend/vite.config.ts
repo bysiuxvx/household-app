@@ -35,8 +35,14 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg}']
       },
       devOptions: {
-        enabled: true
-      }
+        enabled: process.env.NODE_ENV === 'development' ? false : true,
+        type: 'module',
+        navigateFallback: 'index.html'
+      },
+      strategies: 'injectManifest',
+      injectRegister: 'inline',
+      srcDir: 'src',
+      filename: 'service-worker.ts'
     })
   ],
   resolve: {
