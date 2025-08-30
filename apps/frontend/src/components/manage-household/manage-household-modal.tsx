@@ -8,9 +8,9 @@ import { z } from 'zod'
 
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
-import config from '../config'
-import { selectedHouseholdAtom, useUserRole } from '../store/store.ts'
-import { Button } from './ui/button.tsx'
+import config from '../../config.ts'
+import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
+import { Button } from '../ui/button.tsx'
 import {
   Dialog,
   DialogContent,
@@ -18,9 +18,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog.tsx'
-import { Input } from './ui/input.tsx'
-import { Label } from './ui/label.tsx'
+} from '../ui/dialog.tsx'
+import { Input } from '../ui/input.tsx'
+import { Label } from '../ui/label.tsx'
+import MemberList from './member-list.tsx'
 
 interface ModalProps {
   open: boolean
@@ -223,6 +224,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
             </div>
           </div>
         )}
+        <MemberList />
         <DialogFooter>
           <Button type='button' variant='outline' onClick={() => setOpen(false)}>
             Cancel
