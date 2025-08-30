@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 
 import App from './App.tsx'
 import './index.css'
+import { register } from './serviceWorkerRegistration'
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
@@ -13,6 +14,26 @@ if (!PUBLISHABLE_KEY) {
 }
 
 const queryClient = new QueryClient()
+
+// Register service worker in development for testing
+if (import.meta.env.DEV) {
+  register({
+    onSuccess: (registration) => {
+      console.log('ServiceWorker registration successful with scope: ', registration.scope)
+    },
+    onUpdate: (registration) => {
+      console.log('New content is available; please refresh.')
+      // You can add a custom UI to inform the user to update the app
+      if (window.confirm('New version available! Update now?')) {
+        const waitingServiceWorker = registration.waiting
+        if (waitingServiceWorker) {
+          waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' })
+          window.location.reload()
+        }
+      }
+    },
+  })
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
