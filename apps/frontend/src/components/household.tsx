@@ -135,7 +135,7 @@ function Household() {
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
 
   const todoList = getListByType(selectedHousehold.lists, 'TODO')
-  const shoppingList = getListByType(selectedHousehold.lists, 'GROCERY')
+  const shoppingList = getListByType(selectedHousehold.lists, 'SHOPPING')
 
   const priorityOrder = {
     HIGH: 1,
@@ -515,8 +515,8 @@ function Household() {
 
       <TabsContent value='groceries' className='space-y-4'>
         <AddTodoForm
-          onAdd={(item) => handleAddItem({ ...item, type: 'GROCERY' })}
-          type='GROCERY'
+          onAdd={(item) => handleAddItem({ ...item, type: 'SHOPPING' })}
+          type='SHOPPING'
           placeholder='Add grocery item...'
           isSubmitting={addItemMutation.isPending}
         />
@@ -532,7 +532,7 @@ function Household() {
                   priority: item.priority || undefined,
                   assignedTo: item.completedBy?.name || item.createdBy?.name || undefined,
                 }}
-                typeOfList='GROCERY'
+                typeOfList='SHOPPING'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
@@ -551,7 +551,7 @@ function Household() {
                   ...item,
                   assignedTo: item.completedBy?.name || item.createdBy?.name || undefined,
                 }}
-                typeOfList='GROCERY'
+                typeOfList='SHOPPING'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
