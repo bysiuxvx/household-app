@@ -15,8 +15,8 @@ if (!PUBLISHABLE_KEY) {
 
 const queryClient = new QueryClient()
 
-// Register service worker in development for testing
-if (import.meta.env.DEV) {
+// Only register service worker in production
+if (import.meta.env.PROD) {
   register({
     onSuccess: (registration) => {
       console.log('ServiceWorker registration successful with scope: ', registration.scope)

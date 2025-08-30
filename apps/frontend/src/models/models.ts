@@ -1,6 +1,6 @@
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH'
 
-export type ListType = 'TODO' | 'GROCERY'
+export type ListType = 'TODO' | 'SHOPPING'
 
 export type UserRole = 'ADMIN' | 'MEMBER'
 
