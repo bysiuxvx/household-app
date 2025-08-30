@@ -13,8 +13,15 @@ type Config = {
 };
 
 export function register(config?: Config) {
+  // Skip service worker registration in development mode
+  if (process.env.NODE_ENV === 'development') {
+    if (config && config.onSuccess) {
+      config.onSuccess({} as ServiceWorkerRegistration);
+    }
+    return;
+  }
+
   if ('serviceWorker' in navigator) {
-    // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(import.meta.env.BASE_URL, window.location.href);
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
@@ -23,7 +30,7 @@ export function register(config?: Config) {
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${import.meta.env.BASE_URL}sw.js`;
+      const swUrl = `${import.meta.env.BASE_URL}service-worker.ts`;
 
       if (isLocalhost) {
         // This is running on localhost. Let's check if a service worker still exists or not.
