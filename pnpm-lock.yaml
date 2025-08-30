@@ -15,7 +15,7 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2(prettier@3.6.2)
       '@types/node':
-        specifier: ^20.11.0
+        specifier: ^20.19.11
         version: 20.19.11
       '@typescript-eslint/eslint-plugin':
         specifier: ^7.3.1
