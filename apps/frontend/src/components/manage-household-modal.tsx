@@ -10,6 +10,7 @@ import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
 import config from '../config'
 import { selectedHouseholdAtom, useUserRole } from '../store/store.ts'
+import MemberList from './manage-household/member-view.tsx'
 import { Button } from './ui/button.tsx'
 import {
   Dialog,
@@ -223,6 +224,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
             </div>
           </div>
         )}
+        <MemberList />
         <DialogFooter>
           <Button type='button' variant='outline' onClick={() => setOpen(false)}>
             Cancel
