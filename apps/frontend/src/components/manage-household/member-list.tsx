@@ -33,7 +33,7 @@ function MemberList() {
               </div>
               <div className='flex justify-end gap-2'>
                 <Badge variant='secondary'>{member.role}</Badge>
-                {!isAdmin && (
+                {isAdmin && (
                   <Button variant='ghost' size='sm' className='h-8 w-8 p-0'>
                     <MoreVertical className='h-4 w-4' />
                   </Button>
