@@ -10,5 +10,3 @@ build:
 
 run:
   command: cd apps/backend && pnpm start
-
-port: 8080
