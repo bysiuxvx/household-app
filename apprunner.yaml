@@ -1,0 +1,21 @@
+version: 1.0
+runtime: nodejs22
+
+# Set the working directory to the backend app
+working_directory: apps/backend
+
+build:
+  commands:
+    build:
+      - pnpm install
+      - pnpm --filter backend build
+    run:
+      command: pnpm start
+
+# Expose the port your app uses
+port: 8080
+
+# Environment variables (you can also set these in App Runner console)
+# environment:
+#   - NODE_ENV=production
+#   - DATABASE_URL=your-db-url
