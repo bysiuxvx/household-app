@@ -1,13 +1,13 @@
 version: 1.0
 runtime: nodejs22
-working_directory: apps/backend  # relative to repo root
 
 build:
   commands:
     build:
+      - cd apps/backend
       - pnpm install
-      - pnpm --filter backend build
+      - pnpm run build
     run:
-      command: pnpm start
+      command: cd apps/backend && pnpm start
 
 port: 8080
