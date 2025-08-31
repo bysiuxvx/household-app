@@ -7,11 +7,20 @@ RUN npm install -g pnpm
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml ./
+# Copy root package files
+COPY ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ./
 
-# Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+# Copy backend package files
+COPY package.json pnpm-lock.yaml ./apps/backend/
+
+# Create shared directory structure
+RUN mkdir -p ./node_modules
+
+# Install all dependencies without freezing lockfile
+RUN pnpm install --no-frozen-lockfile
+
+# Set working directory to backend
+WORKDIR /app/apps/backend
 
 # Copy Prisma schema
 COPY prisma ./prisma/
