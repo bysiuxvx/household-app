@@ -3,10 +3,10 @@ runtime: nodejs22
 
 build:
   commands:
-    build:
-      - cd apps/backend
-      - pnpm install
-      - pnpm run build
+    - cd apps/backend
+    - pnpm install
+    - pnpm run build
 
 run:
-  command: cd apps/backend && pnpm start
+  command: |
+    cd apps/backend && pnpm start
