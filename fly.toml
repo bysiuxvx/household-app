@@ -6,6 +6,7 @@ primary_region = "waw"  # Choose your preferred region (e.g., waw, fra, ord, etc
 
 [build]
   dockerfile = "Dockerfile"
+  build_args = {}
 
 [deploy]
   strategy = "immediate"
@@ -36,6 +37,6 @@ primary_region = "waw"  # Choose your preferred region (e.g., waw, fra, ord, etc
 
   [[services.tcp_checks]]
     grace_period = "1s"
-    interval = "15s"
+    interval = 15000
     restart_limit = 0
-    timeout = "2s"
+    timeout = 2000
