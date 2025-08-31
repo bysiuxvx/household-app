@@ -1,5 +1,5 @@
 # Use Node.js LTS
-FROM node:20-alpine AS base
+FROM node:20-alpine
 
 # Install pnpm
 RUN npm install -g pnpm
@@ -7,25 +7,19 @@ RUN npm install -g pnpm
 # Set working directory
 WORKDIR /app
 
-# Copy root package files
-COPY ../../package.json ../../pnpm-lock.yaml ../../pnpm-workspace.yaml ./
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
 
-# Copy backend package files
-COPY ./package.json ./pnpm-lock.yaml ./apps/backend/
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Set working directory to backend
-WORKDIR /app/apps/backend
+# Install only production dependencies
+RUN pnpm install --prod --frozen-lockfile
 
 # Copy Prisma schema
-COPY ./prisma ./prisma/
+COPY prisma ./prisma/
 
 # Generate Prisma client
 RUN pnpm prisma generate
 
-# Copy backend source code
+# Copy source code
 COPY . .
 
 # Build the application
