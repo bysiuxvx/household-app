@@ -27,11 +27,12 @@
     "@household/eslint-config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/node": "^20.11.0",
+    "@types/node": "^24.3.0",
     "eslint-plugin-import": "2.29.1",
     "globals": "16.3.0",
     "nodemon": "^3.1.10",
     "prisma": "^6.14.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }
