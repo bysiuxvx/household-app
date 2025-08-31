@@ -1,42 +1,38 @@
-# fly.toml app configuration file for your backend
+# fly.toml app configuration file
 # See https://fly.io/docs/reference/configuration/ for more details
 
-app = "household-app"  # Replace with your Fly.io app name
-primary_region = "waw"  # Choose your preferred region (e.g., waw, fra, ord, etc.)
+app = "household-app" # Your app name
+primary_region = "fra" # Change to your preferred region (e.g., "iad" for Virginia, "lhr" for London)
 
 [build]
   dockerfile = "Dockerfile"
-  build_args = {}
-
-[deploy]
-  strategy = "immediate"
+  target = "runner"
 
 [env]
   NODE_ENV = "production"
   PORT = "8080"
 
-[[services]]
-  http_checks = []
+[http_service]
   internal_port = 8080
-  protocol = "tcp"
-  script_checks = []
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
 
-  [services.concurrency]
-    hard_limit = 25
-    soft_limit = 20
-    type = "connections"
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 1024
 
-  [[services.ports]]
-    force_https = true
-    handlers = ["http"]
-    port = 80
+[deploy]
+  strategy = "bluegreen"
+  release_command = "pnpm --filter backend exec prisma migrate deploy"
 
-  [[services.ports]]
-    handlers = ["tls", "http"]
-    port = 443
-
-  [[services.tcp_checks]]
-    grace_period = "1s"
-    interval = 15000
-    restart_limit = 0
-    timeout = 2000
+[mounts]
+  source = "pg_data"
+  destination = "/data"
+  initial_size = "10"
+  auto_extend_size = "10"
+  auto_extend_threshold = "80"
+  auto_extend_step = "5"

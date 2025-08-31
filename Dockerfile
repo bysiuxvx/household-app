@@ -1,51 +1,62 @@
-# Build stage
-FROM node:20-alpine AS builder
+# Use Node.js LTS
+FROM node:20-alpine AS base
 
-# Install pnpm
-RUN npm install -g pnpm
-
-# Set working directory
+# Install dependencies only when needed
+FROM base AS deps
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
 
-# Copy backend package files
-COPY apps/backend/package.json ./apps/backend/
+# Copy package files
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY ./apps/backend/package.json ./apps/backend/package.json
+COPY ./packages/shared/package.json ./packages/shared/package.json
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --prod=false
 
-# Copy backend source code
-COPY apps/backend ./apps/backend
-
-# Build the application
-WORKDIR /app/apps/backend
-RUN pnpm prisma generate
-RUN pnpm run build
-
-# Production stage
-FROM node:20-alpine
-
-# Install pnpm
-RUN npm install -g pnpm
-
-# Set working directory
+# Rebuild the source code
+FROM base AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY --from=builder /app/node_modules ./node_modules
+# Copy pnpm files
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/pnpm-lock.yaml ./
+COPY --from=deps /app/pnpm-workspace.yaml ./
+COPY --from=deps /app/package.json ./
 
-# Copy built application
+# Copy app source
+COPY . .
+
+# Build the app
+RUN pnpm --filter backend build
+
+# Prisma generate
+RUN pnpm --filter backend exec prisma generate
+
+# Production image
+FROM base AS runner
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@8.15.0 --activate
+
+# Copy built app
 COPY --from=builder /app/apps/backend/dist ./dist
+COPY --from=builder /app/apps/backend/node_modules ./node_modules
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
+
+# Copy Prisma schema
 COPY --from=builder /app/apps/backend/prisma ./prisma
 
-# Set working directory to backend
-WORKDIR /app/apps/backend
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8080
 
-# Expose the port the app runs on
+# Expose port
 EXPOSE 8080
 
-# Command to run the application
+# Start the server
 CMD ["node", "dist/server.js"]
