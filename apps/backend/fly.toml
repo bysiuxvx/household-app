@@ -5,9 +5,7 @@ app = "household-app"  # Replace with your Fly.io app name
 primary_region = "waw"  # Choose your preferred region (e.g., waw, fra, ord, etc.)
 
 [build]
-  builder = "heroku/buildpacks:20"
-  buildpacks = ["heroku/nodejs"]
-  build_command = "pnpm install && pnpm prisma generate && pnpm run build"
+  dockerfile = "Dockerfile"
 
 [deploy]
   strategy = "immediate"
