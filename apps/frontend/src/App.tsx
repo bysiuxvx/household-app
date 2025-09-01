@@ -5,14 +5,15 @@ import { Loader, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import CreateHouseholdModal from './components/create-household-modal.tsx'
-import { HouseholdCard } from './components/household-card.tsx'
 import Household from './components/household.tsx'
+import HouseholdsList from './components/households-list.tsx'
 import ManageHouseholdModal from './components/manage-household/manage-household-modal.tsx'
 import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
-import NoHousehold from './components/ui/no-household.tsx'
+import NoHouseholds from './components/ui/no-household.tsx'
 import { Separator } from './components/ui/separator.tsx'
 import config from './config'
+import type { Household as HouseholdType } from './models/models.ts'
 import { selectedHouseholdAtom } from './store/store.ts'
 
 function App() {
@@ -20,13 +21,14 @@ function App() {
   const [manageHouseholdModalOpen, setManageHouseholdModalOpen] = useState<boolean>(false)
   const { getToken } = useAuth()
   const { user } = useUser()
+
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
 
   const {
     data: households = [],
     isLoading,
     error,
-  } = useQuery({
+  } = useQuery<HouseholdType[]>({
     queryKey: ['households'],
     queryFn: async () => {
       const token = await getToken()
@@ -46,8 +48,6 @@ function App() {
     },
   })
 
-  // @ts-ignore
-  // @ts-ignore
   return (
     <div className='min-h-screen bg-background pb-20'>
       <Navbar setOpen={setManageHouseholdModalOpen} />
@@ -77,46 +77,39 @@ function App() {
           </>
         )}
 
-        {!selectedHousehold && !isLoading ? (
-          <>
-            <div className='space-y-4'>
-              <div className='flex items-center justify-between'>
-                <h3 className='text-lg font-medium text-foreground'>Your Households</h3>
-                <Button
-                  size='sm'
-                  className='gap-2'
-                  onClick={() => setCreateHouseholdModalOpen(true)}
-                >
-                  <Plus className='h-4 w-4' />
-                </Button>
-              </div>
+        {!selectedHousehold ? (
+          isLoading ? (
+            <div className='flex items-center justify-center h-64'>
+              <Loader className='animate-spin h-12 w-12' />
             </div>
-            <div className='space-y-4 w-full'>
-              <div className='w-full'>
-                {households.length > 0 ? (
-                  <div className='space-y-3 w-full'>
-                    {households.map((household) => (
-                      <div key={household.id} className='w-full'>
-                        <HouseholdCard
-                          household={household}
-                          // @ts-ignore
-                          onClick={() => setSelectedHousehold(household)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <NoHousehold />
-                )}
+          ) : (
+            <>
+              <div className='space-y-4'>
+                <div className='flex items-center justify-between'>
+                  <h3 className='text-lg font-medium text-foreground'>Your Households</h3>
+                  <Button
+                    size='sm'
+                    className='gap-2'
+                    onClick={() => setCreateHouseholdModalOpen(true)}
+                  >
+                    <Plus className='h-4 w-4' />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </>
+              <div className='space-y-4 w-full'>
+                <div className='w-full'>
+                  {households.length > 0 ? (
+                    <HouseholdsList households={households} setHousehold={setSelectedHousehold} />
+                  ) : (
+                    <NoHouseholds />
+                  )}
+                </div>
+              </div>
+            </>
+          )
         ) : (
-          <div className='flex items-center justify-center h-64'>
-            <Loader className='animate-spin h-12 w-12' />
-          </div>
+          <Household />
         )}
-        {selectedHousehold && <Household />}
       </main>
     </div>
   )
