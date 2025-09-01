@@ -1,7 +1,7 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
-import { Plus } from 'lucide-react'
+import { Loader, Plus } from 'lucide-react'
 import { useState } from 'react'
 
 import CreateHouseholdModal from './components/create-household-modal.tsx'
@@ -11,6 +11,7 @@ import ManageHouseholdModal from './components/manage-household/manage-household
 import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
 import NoHousehold from './components/ui/no-household.tsx'
+import { Separator } from './components/ui/separator.tsx'
 import config from './config'
 import { selectedHouseholdAtom } from './store/store.ts'
 
@@ -72,7 +73,12 @@ function App() {
               </h2>
               <p className='text-muted-foreground'>Manage your household tasks and lists</p>
             </div>
+            <Separator className='my-4' />
+          </>
+        )}
 
+        {!selectedHousehold && !isLoading ? (
+          <>
             <div className='space-y-4'>
               <div className='flex items-center justify-between'>
                 <h3 className='text-lg font-medium text-foreground'>Your Households</h3>
@@ -105,6 +111,10 @@ function App() {
               </div>
             </div>
           </>
+        ) : (
+          <div className='flex items-center justify-center h-64'>
+            <Loader className='animate-spin h-12 w-12' />
+          </div>
         )}
         {selectedHousehold && <Household />}
       </main>
