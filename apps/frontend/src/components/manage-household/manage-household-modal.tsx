@@ -63,7 +63,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
 
   const handleCancelSecretEdit = () => {
     setIsEditingSecret(false)
-    reset({ secret: currentHousehold?.secret || undefined })
+    reset({ secret: currentHousehold?.secret || null })
   }
 
   const handleSaveSecret = async (data: FormValues) => {
@@ -153,8 +153,9 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         {useUserRole().isAdmin && (
           <div className='grid gap-4 py-4'>
             <p className='text-sm text-muted-foreground'>
-              Set up your household secret and generate a code to invite members. The code expires
-              after 60 minutes.
+              Set up your household secret and generate a code to invite members. The code{' '}
+              <span className='font-semibold'>expires after 60 minutes</span> and{' '}
+              <span className='font-semibold'>is single use</span>.
             </p>
             <div className='grid gap-2'>
               <Label htmlFor='household-name'>Household secret</Label>
