@@ -12,9 +12,9 @@ import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
 import NoHouseholds from './components/ui/no-household.tsx'
 import { Separator } from './components/ui/separator.tsx'
-import config from './config'
 import type { Household as HouseholdType } from './models/models.ts'
 import { selectedHouseholdAtom } from './store/store.ts'
+import { loadHouseholds } from './utils/query-functions.ts'
 
 const LOADING_THRESHOLD = 2000
 
@@ -33,22 +33,7 @@ function App() {
     error,
   } = useQuery<HouseholdType[]>({
     queryKey: ['households'],
-    queryFn: async () => {
-      const token = await getToken()
-      const response = await fetch(`${config.apiBaseUrl}/api/households`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch households')
-      }
-
-      return response.json()
-    },
+    queryFn: () => loadHouseholds(getToken),
   })
 
   useEffect(() => {
