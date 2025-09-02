@@ -2,7 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import { useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { Loader, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import CreateHouseholdModal from './components/create-household-modal.tsx'
 import Household from './components/household.tsx'
@@ -16,9 +16,12 @@ import config from './config'
 import type { Household as HouseholdType } from './models/models.ts'
 import { selectedHouseholdAtom } from './store/store.ts'
 
+const LOADING_THRESHOLD = 2000
+
 function App() {
   const [createHouseholdModalOpen, setCreateHouseholdModalOpen] = useState<boolean>(false)
   const [manageHouseholdModalOpen, setManageHouseholdModalOpen] = useState<boolean>(false)
+  const [fetchingForMs, setFetchingForMs] = useState(0)
   const { getToken } = useAuth()
   const { user } = useUser()
 
@@ -47,6 +50,24 @@ function App() {
       return response.json()
     },
   })
+
+  useEffect(() => {
+    if (!isLoading) {
+      setFetchingForMs(0)
+      return
+    }
+
+    const start = Date.now()
+    const interval = setInterval(() => {
+      if (!isLoading) {
+        clearInterval(interval)
+        return
+      }
+      setFetchingForMs(Date.now() - start)
+    }, 100)
+
+    return () => clearInterval(interval)
+  }, [isLoading])
 
   return (
     <div className='min-h-screen bg-background pb-20'>
@@ -79,8 +100,11 @@ function App() {
 
         {!selectedHousehold ? (
           isLoading ? (
-            <div className='flex items-center justify-center h-64'>
+            <div className='flex flex-col items-center justify-center h-64 space-y-4'>
               <Loader className='animate-spin h-12 w-12' />
+              {fetchingForMs > LOADING_THRESHOLD && (
+                <p className='text-muted-foreground'>Loading... This takes longer than expected</p>
+              )}
             </div>
           ) : (
             <>
