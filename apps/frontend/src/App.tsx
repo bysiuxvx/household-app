@@ -2,7 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import { useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { Loader, Plus } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 import CreateHouseholdModal from './components/create-household-modal.tsx'
 import Household from './components/household.tsx'
@@ -12,6 +12,7 @@ import Navbar from './components/navbar.tsx'
 import { Button } from './components/ui/button.tsx'
 import NoHouseholds from './components/ui/no-household.tsx'
 import { Separator } from './components/ui/separator.tsx'
+import { useLoadingTime } from './hooks/use-loading-time.ts'
 import type { Household as HouseholdType } from './models/models.ts'
 import { selectedHouseholdAtom } from './store/store.ts'
 import { loadHouseholds } from './utils/query-functions.ts'
@@ -21,7 +22,6 @@ const LOADING_THRESHOLD = 2000
 function App() {
   const [createHouseholdModalOpen, setCreateHouseholdModalOpen] = useState<boolean>(false)
   const [manageHouseholdModalOpen, setManageHouseholdModalOpen] = useState<boolean>(false)
-  const [fetchingForMs, setFetchingForMs] = useState(0)
   const { getToken } = useAuth()
   const { user } = useUser()
 
@@ -36,23 +36,7 @@ function App() {
     queryFn: () => loadHouseholds(getToken),
   })
 
-  useEffect(() => {
-    if (!isLoading) {
-      setFetchingForMs(0)
-      return
-    }
-
-    const start = Date.now()
-    const interval = setInterval(() => {
-      if (!isLoading) {
-        clearInterval(interval)
-        return
-      }
-      setFetchingForMs(Date.now() - start)
-    }, 100)
-
-    return () => clearInterval(interval)
-  }, [isLoading])
+  const loadingTime: number = useLoadingTime(isLoading)
 
   return (
     <div className='min-h-screen bg-background pb-20'>
@@ -87,7 +71,7 @@ function App() {
           isLoading ? (
             <div className='flex flex-col items-center justify-center h-64 space-y-4'>
               <Loader className='animate-spin h-12 w-12' />
-              {fetchingForMs > LOADING_THRESHOLD && (
+              {loadingTime > LOADING_THRESHOLD && (
                 <p className='text-muted-foreground'>Loading... This takes longer than expected</p>
               )}
             </div>
