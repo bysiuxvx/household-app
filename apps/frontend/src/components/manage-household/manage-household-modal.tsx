@@ -183,7 +183,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                       className='h-8 w-8 p-0'
                       type='button'
                     >
-                      <Check className='h-3 w-3' />
+                      <Check className='h-4 w-4' />
                     </Button>
                     <Button
                       size='sm'
@@ -191,7 +191,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                       onClick={() => handleCancelSecretEdit()}
                       className='h-8 w-8 p-0'
                     >
-                      <X className='h-3 w-3' />
+                      <X className='h-4 w-4' />
                     </Button>
                   </>
                 ) : (
@@ -201,7 +201,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                     onClick={() => setIsEditingSecret(true)}
                     className='h-8 w-8 p-0'
                   >
-                    <Edit2 className='h-3 w-3' />
+                    <Edit2 className='h-4 w-4' />
                   </Button>
                 )}
               </div>
