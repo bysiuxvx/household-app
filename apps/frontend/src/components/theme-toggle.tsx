@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu.tsx'
+import { Separator } from './ui/separator.tsx'
 
 export function ThemeToggle() {
   const { setTheme } = useTheme()
@@ -25,6 +26,7 @@ export function ThemeToggle() {
       <DropdownMenuContent align='end'>
         <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+        <Separator />
         <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
