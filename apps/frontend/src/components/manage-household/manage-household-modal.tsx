@@ -2,7 +2,7 @@ import { useAuth } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
-import { Check, Edit2, X } from 'lucide-react'
+import { AlertTriangle, Check, Edit2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -47,6 +47,8 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
   const [verificationCode, setVerificationCode] = useState<string | null>(null)
   const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   const [currentHousehold, setCurrentHousehold] = useAtom(selectedHouseholdAtom)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
 
@@ -65,9 +67,16 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     },
   })
 
-  const handleLeaveHousehold = async () => {
+  const handleLeaveHousehold = () => {
+    setShowConfirmDialog(true)
+  }
+
+  const confirmLeaveHousehold = async () => {
+    if (!currentHousehold) return
+
+    setIsLeaving(true)
     const token = await getToken()
-    const url = `${config.apiBaseUrl}/api/households/${currentHousehold!.id}/members/me`
+    const url = `${config.apiBaseUrl}/api/households/${currentHousehold.id}/members/me`
 
     try {
       const response = await fetch(url, {
@@ -84,10 +93,13 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
 
       await queryClient.invalidateQueries({ queryKey: ['households'] })
       setOpen(false)
-      // @ts-ignore
-      setCurrentHousehold(null)
+      setShowConfirmDialog(false)
     } catch (error) {
       console.error('Error leaving household:', error)
+    } finally {
+      setIsLeaving(false)
+      // @ts-ignore
+      setCurrentHousehold(null)
     }
   }
 
@@ -257,13 +269,51 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         )}
         <MemberList />
         <DialogFooter>
-          <Button type='button' variant='destructive' onClick={handleLeaveHousehold}>
-            Leave household
+          <Button
+            type='button'
+            variant='destructive'
+            onClick={handleLeaveHousehold}
+            disabled={isLeaving}
+          >
+            {isLeaving ? 'Leaving...' : 'Leave household'}
           </Button>
-          <Button type='button' variant='outline' onClick={() => setOpen(false)}>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => setOpen(false)}
+            disabled={isLeaving}
+          >
             Cancel
           </Button>
         </DialogFooter>
+
+        {/* confirmation modal */}
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <div className='flex items-center gap-2'>
+                <AlertTriangle className='h-5 w-5 text-destructive' />
+                <DialogTitle>Leave Household</DialogTitle>
+              </div>
+              <DialogDescription>
+                Are you sure you want to leave the household "{currentHousehold?.name}"? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant='outline'
+                onClick={() => setShowConfirmDialog(false)}
+                disabled={isLeaving}
+              >
+                Cancel
+              </Button>
+              <Button variant='destructive' onClick={confirmLeaveHousehold} disabled={isLeaving}>
+                {isLeaving ? 'Leaving...' : 'Leave Household'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   )
