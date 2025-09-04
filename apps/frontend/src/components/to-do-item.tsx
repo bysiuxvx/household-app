@@ -68,10 +68,10 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                   autoFocus
                 />
                 <Button size='sm' variant='ghost' onClick={handleSave} className='h-8 w-8 p-0'>
-                  <Check className='h-3 w-3' />
+                  <Check className='h-4 w-4' />
                 </Button>
                 <Button size='sm' variant='ghost' onClick={handleCancel} className='h-8 w-8 p-0'>
-                  <X className='h-3 w-3' />
+                  <X className='h-4 w-4' />
                 </Button>
               </div>
             ) : (
@@ -108,7 +108,7 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                 onClick={() => setIsEditing(true)}
                 className='h-8 w-8 p-0'
               >
-                <Edit2 className='h-3 w-3' />
+                <Edit2 className='h-4 w-4' />
               </Button>
               <Button
                 size='sm'
@@ -116,7 +116,7 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                 onClick={() => onDelete(item.id)}
                 className='h-8 w-8 p-0 text-destructive hover:text-destructive'
               >
-                <Trash2 className='h-3 w-3' />
+                <Trash2 className='h-4 w-4' />
               </Button>
             </div>
           )}

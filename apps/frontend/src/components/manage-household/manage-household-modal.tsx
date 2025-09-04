@@ -1,7 +1,8 @@
 import { useAuth } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
-import { Check, Edit2, X } from 'lucide-react'
+import { AlertTriangle, Check, Edit2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -9,6 +10,7 @@ import { z } from 'zod'
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
 import config from '../../config.ts'
+import type { Household } from '../../models/models.ts'
 import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
 import { Button } from '../ui/button.tsx'
 import {
@@ -26,6 +28,7 @@ import MemberList from './member-list.tsx'
 interface ModalProps {
   open: boolean
   setOpen: (open: boolean) => void
+  setCurrentHousehold: (household: Household | null) => void
 }
 
 const schema = z.object({
@@ -44,7 +47,10 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
   const [verificationCode, setVerificationCode] = useState<string | null>(null)
   const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   const [currentHousehold, setCurrentHousehold] = useAtom(selectedHouseholdAtom)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isLeaving, setIsLeaving] = useState(false)
   const { getToken } = useAuth()
+  const queryClient = useQueryClient()
 
   const {
     register,
@@ -61,9 +67,45 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     },
   })
 
+  const handleLeaveHousehold = () => {
+    setShowConfirmDialog(true)
+  }
+
+  const confirmLeaveHousehold = async () => {
+    if (!currentHousehold) return
+
+    setIsLeaving(true)
+    const token = await getToken()
+    const url = `${config.apiBaseUrl}/api/households/${currentHousehold.id}/members/me`
+
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to leave household')
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['households'] })
+      setOpen(false)
+      setShowConfirmDialog(false)
+    } catch (error) {
+      console.error('Error leaving household:', error)
+    } finally {
+      setIsLeaving(false)
+      // @ts-ignore
+      setCurrentHousehold(null)
+    }
+  }
+
   const handleCancelSecretEdit = () => {
     setIsEditingSecret(false)
-    reset({ secret: currentHousehold?.secret || undefined })
+    reset({ secret: currentHousehold?.secret || null })
   }
 
   const handleSaveSecret = async (data: FormValues) => {
@@ -153,8 +195,9 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         {useUserRole().isAdmin && (
           <div className='grid gap-4 py-4'>
             <p className='text-sm text-muted-foreground'>
-              Set up your household secret and generate a code to invite members. The code expires
-              after 60 minutes.
+              Set up your household secret and generate a code to invite members. The code{' '}
+              <span className='font-semibold'>expires after 60 minutes</span> and{' '}
+              <span className='font-semibold'>is single use</span>.
             </p>
             <div className='grid gap-2'>
               <Label htmlFor='household-name'>Household secret</Label>
@@ -182,7 +225,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                       className='h-8 w-8 p-0'
                       type='button'
                     >
-                      <Check className='h-3 w-3' />
+                      <Check className='h-4 w-4' />
                     </Button>
                     <Button
                       size='sm'
@@ -190,7 +233,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                       onClick={() => handleCancelSecretEdit()}
                       className='h-8 w-8 p-0'
                     >
-                      <X className='h-3 w-3' />
+                      <X className='h-4 w-4' />
                     </Button>
                   </>
                 ) : (
@@ -200,7 +243,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                     onClick={() => setIsEditingSecret(true)}
                     className='h-8 w-8 p-0'
                   >
-                    <Edit2 className='h-3 w-3' />
+                    <Edit2 className='h-4 w-4' />
                   </Button>
                 )}
               </div>
@@ -226,10 +269,51 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         )}
         <MemberList />
         <DialogFooter>
-          <Button type='button' variant='outline' onClick={() => setOpen(false)}>
+          <Button
+            type='button'
+            variant='destructive'
+            onClick={handleLeaveHousehold}
+            disabled={isLeaving}
+          >
+            {isLeaving ? 'Leaving...' : 'Leave household'}
+          </Button>
+          <Button
+            type='button'
+            variant='outline'
+            onClick={() => setOpen(false)}
+            disabled={isLeaving}
+          >
             Cancel
           </Button>
         </DialogFooter>
+
+        {/* confirmation modal */}
+        <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <div className='flex items-center gap-2'>
+                <AlertTriangle className='h-5 w-5 text-destructive' />
+                <DialogTitle>Leave Household</DialogTitle>
+              </div>
+              <DialogDescription>
+                Are you sure you want to leave the household "{currentHousehold?.name}"? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant='outline'
+                onClick={() => setShowConfirmDialog(false)}
+                disabled={isLeaving}
+              >
+                Cancel
+              </Button>
+              <Button variant='destructive' onClick={confirmLeaveHousehold} disabled={isLeaving}>
+                {isLeaving ? 'Leaving...' : 'Leave Household'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   )

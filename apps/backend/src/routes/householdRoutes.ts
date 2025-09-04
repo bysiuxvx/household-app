@@ -268,6 +268,7 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
   }
 })
 
+// create household
 householdRouter.post('/', async (req: express.Request, res: express.Response): Promise<void> => {
   const { userId } = getAuth(req)
   const user: User = await clerkClient.users.getUser(userId!)
@@ -388,3 +389,92 @@ householdRouter.post('/', async (req: express.Request, res: express.Response): P
     })
   }
 })
+
+// leave household = remove user from household
+householdRouter.delete(
+  '/:householdId/members/me',
+  async (req: express.Request, res: express.Response): Promise<void> => {
+    const { userId } = getAuth(req)
+    const { householdId } = req.params
+
+    if (!userId) {
+      res.status(401).json({ error: 'Unauthorized' })
+      return
+    }
+
+    try {
+      await prisma.$transaction(async (tx) => {
+        // get the user's membership
+        const currentMembership = await tx.userOnHousehold.findUnique({
+          where: {
+            userId_householdId: {
+              userId,
+              householdId,
+            },
+          },
+          include: {
+            household: {
+              include: {
+                _count: {
+                  select: { members: true },
+                },
+              },
+            },
+          },
+        })
+
+        if (!currentMembership) {
+          res.status(404).json({ error: 'Household or membership not found' })
+          return
+        }
+
+        // if user is the only member, delete the household
+        if (currentMembership.household._count.members === 1) {
+          await tx.household.delete({
+            where: { id: householdId },
+          })
+          res.status(200).json({ message: 'Household deleted successfully' })
+          return
+        }
+
+        // if user is an admin, transfer admin role to another member
+        if (currentMembership.role === UserRoles.ADMIN) {
+          const newAdmin = await tx.userOnHousehold.findFirst({
+            where: {
+              householdId,
+              userId: { not: userId },
+            },
+            orderBy: { joinedAt: 'asc' }, // oldest member (after admin)
+          })
+
+          if (newAdmin) {
+            await tx.userOnHousehold.update({
+              where: {
+                userId_householdId: {
+                  userId: newAdmin.userId,
+                  householdId,
+                },
+              },
+              data: { role: UserRoles.ADMIN },
+            })
+          }
+        }
+
+        // remove the user from the household
+        await tx.userOnHousehold.delete({
+          where: {
+            userId_householdId: {
+              userId,
+              householdId,
+            },
+          },
+        })
+
+        res.status(200).json({ message: 'Left household successfully' })
+      })
+    } catch (error) {
+      console.error('Error leaving household:', error)
+      res.status(500).json({ error: 'Failed to leave household' })
+    }
+  }
+)

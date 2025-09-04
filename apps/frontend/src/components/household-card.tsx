@@ -1,55 +1,23 @@
 import { CheckSquare, MoreVertical, ShoppingCart, Users } from 'lucide-react'
 
+import type { Household as HouseholdType, List } from '../models/models.ts'
 import { Button } from './ui/button.tsx'
 import { Card, CardHeader, CardTitle } from './ui/card.tsx'
 
-interface User {
-  id: string
-  name: string | null
-  email: string
-  username?: string | null
-}
-
-interface Member {
-  user: User
-  role: string
-}
-
-interface ListItem {
-  id: string
-  name: string
-  completed: boolean
-}
-
-interface HouseholdList {
-  id: string
-  name: string
-  items: ListItem[]
-  createdBy: Pick<User, 'id' | 'name'>
-  type: 'SHOPPING' | 'TODO'
-}
-
 interface HouseholdCardProps {
-  household: {
-    id: string
-    name: string
-    members: Member[]
-    lists: HouseholdList[]
-    todoCount?: number
-    groceryCount?: number
-  }
+  household: HouseholdType
   onClick: () => void
 }
 
 export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
   const memberCount = household.members?.length || 0
 
-  const groceryList: HouseholdList | undefined = household.lists?.find(
-    (list: HouseholdList) => list.type === 'SHOPPING'
+  const groceryList: List | undefined = household.lists?.find(
+    (list: List) => list.type === 'SHOPPING'
   )
   const groceryCount: number = groceryList?.items?.length || 0
 
-  const todoList: HouseholdList | undefined = household.lists?.find((list) => list.type === 'TODO')
+  const todoList: List | undefined = household.lists?.find((list) => list.type === 'TODO')
   const todoCount: number = todoList?.items?.length || 0
 
   const displayMembers = household.members?.slice(0, 3) || []
