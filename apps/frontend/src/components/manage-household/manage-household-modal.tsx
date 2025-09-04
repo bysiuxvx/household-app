@@ -5,6 +5,7 @@ import { useAtom } from 'jotai'
 import { AlertTriangle, Check, Edit2, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
@@ -44,7 +45,7 @@ type FormValues = {
 
 function ManageHouseholdModal({ open, setOpen }: ModalProps) {
   const [isEditingSecret, setIsEditingSecret] = useState<boolean>(false)
-  const [verificationCode, setVerificationCode] = useState<string | null>(null)
+  const [verificationCode, setVerificationCode] = useState<string | undefined>(undefined)
   const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   const [currentHousehold, setCurrentHousehold] = useAtom(selectedHouseholdAtom)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -185,6 +186,12 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     }
   }
 
+  const copyCodeToClipboard = () => {
+    if (!verificationCode) return
+    navigator.clipboard.writeText(verificationCode)
+    toast.info('Copied to clipboard')
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className='sm:max-w-[425px]'>
@@ -254,15 +261,20 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                 variant='outline'
                 className='w-auto'
                 disabled={!currentHousehold?.secret || isGeneratingCode}
-                onClick={handleGenerateCode}
+                onClick={verificationCode ? copyCodeToClipboard : handleGenerateCode}
               >
-                {isGeneratingCode ? 'Generating...' : 'Generate code'}
+                {/*{isGeneratingCode ? 'Generating...' : 'Generate code'}*/}
+                {isGeneratingCode
+                  ? 'Generating...'
+                  : verificationCode
+                    ? 'Copy code'
+                    : 'Generate code'}
               </Button>
               <Input
                 type='text'
                 placeholder='Verification code'
                 disabled
-                value={verificationCode || undefined}
+                value={verificationCode}
               />
             </div>
           </div>
