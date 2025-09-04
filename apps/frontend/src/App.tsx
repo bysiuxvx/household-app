@@ -54,6 +54,7 @@ function App() {
           <ManageHouseholdModal
             open={manageHouseholdModalOpen}
             setOpen={setManageHouseholdModalOpen}
+            setCurrentHousehold={setSelectedHousehold}
           />
         )}
 

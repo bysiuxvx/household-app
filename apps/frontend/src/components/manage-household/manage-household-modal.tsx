@@ -1,5 +1,6 @@
 import { useAuth } from '@clerk/clerk-react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { Check, Edit2, X } from 'lucide-react'
 import { useState } from 'react'
@@ -9,6 +10,7 @@ import { z } from 'zod'
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
 import config from '../../config.ts'
+import type { Household } from '../../models/models.ts'
 import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
 import { Button } from '../ui/button.tsx'
 import {
@@ -26,6 +28,7 @@ import MemberList from './member-list.tsx'
 interface ModalProps {
   open: boolean
   setOpen: (open: boolean) => void
+  setCurrentHousehold: (household: Household | null) => void
 }
 
 const schema = z.object({
@@ -45,6 +48,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
   const [isGeneratingCode, setIsGeneratingCode] = useState(false)
   const [currentHousehold, setCurrentHousehold] = useAtom(selectedHouseholdAtom)
   const { getToken } = useAuth()
+  const queryClient = useQueryClient()
 
   const {
     register,
@@ -60,6 +64,32 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
       secret: currentHousehold?.secret || '',
     },
   })
+
+  const handleLeaveHousehold = async () => {
+    const token = await getToken()
+    const url = `${config.apiBaseUrl}/api/households/${currentHousehold!.id}/members/me`
+
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to leave household')
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['households'] })
+      setOpen(false)
+      // @ts-ignore
+      setCurrentHousehold(null)
+    } catch (error) {
+      console.error('Error leaving household:', error)
+    }
+  }
 
   const handleCancelSecretEdit = () => {
     setIsEditingSecret(false)
@@ -227,6 +257,9 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
         )}
         <MemberList />
         <DialogFooter>
+          <Button type='button' variant='destructive' onClick={handleLeaveHousehold}>
+            Leave household
+          </Button>
           <Button type='button' variant='outline' onClick={() => setOpen(false)}>
             Cancel
           </Button>
