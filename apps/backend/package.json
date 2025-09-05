@@ -7,8 +7,15 @@
     "dev": "nodemon --watch src --exec ts-node src/server.ts",
     "build": "tsc --build",
     "start": "node dist/server.js",
+    "start:prod": "node dist/server.js",
+    "generate": "prisma generate",
     "lint": "eslint --config eslint.config.mjs .",
-    "lint:fix": "eslint --config eslint.config.mjs --fix ."
+    "lint:fix": "eslint --config eslint.config.mjs --fix .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate:deploy": "prisma migrate deploy"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [],
   "author": "",
