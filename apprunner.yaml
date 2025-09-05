@@ -3,13 +3,17 @@ runtime: nodejs18
 
 build:
   commands:
-    build:
+    pre-build:
       - corepack enable
       - corepack prepare pnpm@8.15.0 --activate
+    build:
       - pnpm install --frozen-lockfile
       - pnpm --filter backend... run prisma:generate
       - pnpm --filter "./packages/**" run build --if-present
       - pnpm --filter backend... run build
+  env:
+    - name: NODE_ENV
+      value: production
 
 run:
   command: pnpm --filter backend... run start:prod
@@ -22,6 +26,7 @@ run:
       value: '8080'
     - name: HOST
       value: '0.0.0.0'
+    # Uncomment and set these values in AWS App Runner console
     # - name: DATABASE_URL
     #   value: your-database-url
     # - name: CLERK_PUBLISHABLE_KEY
