@@ -9,8 +9,6 @@ build:
     - pnpm install --frozen-lockfile
     # Generate prisma client for backend
     - pnpm --filter backend... run prisma:generate
-    # Run database migrations
-    - pnpm --filter backend... run prisma:migrate:deploy
     # Build shared packages
     - pnpm --filter "./packages/**" run build --if-present
     # Build backend TypeScript
@@ -19,4 +17,18 @@ build:
 run:
   command: pnpm --filter backend... run start:prod
   network:
-    port: 3000
+    port: 8080
+  runtime_environment_variables:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8080'
+    - name: HOST
+      value: '0.0.0.0'
+    # Add your database URL and other environment variables here
+    # - name: DATABASE_URL
+    #   value: your-database-url
+    # - name: CLERK_PUBLISHABLE_KEY
+    #   value: your-clerk-publishable-key
+    # - name: CLERK_SECRET_KEY
+    #   value: your-clerk-secret-key
