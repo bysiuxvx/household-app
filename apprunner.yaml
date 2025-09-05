@@ -2,29 +2,23 @@ version: 1.0
 runtime: nodejs18
 
 build:
-  commands:
-    - corepack enable
-    - corepack prepare pnpm@8.15.0 --activate
-    - pnpm install --frozen-lockfile
-    - pnpm --filter backend... run prisma:generate
-    - pnpm --filter "./packages/**" run build --if-present
-    - pnpm --filter backend... run build
+  commands: |
+    corepack enable
+    corepack prepare pnpm@8.15.0 --activate
+    pnpm install --frozen-lockfile
+    pnpm --filter backend... run prisma:generate
+    pnpm --filter "./packages/**" run build --if-present
+    pnpm --filter backend... run build
 
 run:
   command: pnpm --filter backend... run start:prod
   network:
     port: 8080
   runtime_environment_variables:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8080'
-    - name: HOST
-      value: '0.0.0.0'
+    NODE_ENV: production
+    PORT: '8080'
+    HOST: '0.0.0.0'
     # Uncomment and set these values in the AWS App Runner console
-    # - name: DATABASE_URL
-    #   value: your-database-url
-    # - name: CLERK_PUBLISHABLE_KEY
-    #   value: your-clerk-publishable-key
-    # - name: CLERK_SECRET_KEY
-    #   value: your-clerk-secret-key
+    # DATABASE_URL: your-database-url
+    # CLERK_PUBLISHABLE_KEY: your-clerk-publishable-key
+    # CLERK_SECRET_KEY: your-clerk-secret-key
