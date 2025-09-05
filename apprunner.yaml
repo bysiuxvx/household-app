@@ -15,7 +15,10 @@ run:
   command: pnpm --filter backend... run start:prod
   network:
     port: 8080
-  runtime_environment_variables:
+  env:
     NODE_ENV: production
     PORT: '8080'
     HOST: '0.0.0.0'
+    # DATABASE_URL: your-database-url
+    # CLERK_PUBLISHABLE_KEY: your-clerk-publishable-key
+    # CLERK_SECRET_KEY: your-clerk-secret-key
