@@ -1,12 +1,18 @@
 version: 1.0
-runtime: nodejs22
+runtime: nodejs18
 
 build:
   commands:
-    - cd apps/backend
-    - pnpm install
-    - pnpm run build
+    - corepack enable
+    - corepack prepare pnpm@8.15.0 --activate
+    # Install all workspace deps (dev deps included so prisma CLI is available)
+    - pnpm install --frozen-lockfile
+    # generate prisma client for backend (assumes script "generate" exists in apps/backend/package.json)
+    - pnpm --filter ./apps/backend... run generate
+    # Run any shared package builds your backend requires
+    - pnpm --filter "./packages/**" run build || true
+    # Build backend TS
+    - pnpm --filter ./apps/backend... run build
 
 run:
-  command: |
-    cd apps/backend && pnpm start
+  command: pnpm --filter ./apps/backend... run start:prod
