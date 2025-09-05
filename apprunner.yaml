@@ -7,12 +7,16 @@ build:
     - corepack prepare pnpm@8.15.0 --activate
     # Install all workspace deps (dev deps included so prisma CLI is available)
     - pnpm install --frozen-lockfile
-    # generate prisma client for backend (assumes script "generate" exists in apps/backend/package.json)
-    - pnpm --filter ./apps/backend... run generate
-    # Run any shared package builds your backend requires
-    - pnpm --filter "./packages/**" run build || true
-    # Build backend TS
-    - pnpm --filter ./apps/backend... run build
+    # Generate prisma client for backend
+    - pnpm --filter backend... run prisma:generate
+    # Run database migrations
+    - pnpm --filter backend... run prisma:migrate:deploy
+    # Build shared packages
+    - pnpm --filter "./packages/**" run build --if-present
+    # Build backend TypeScript
+    - pnpm --filter backend... run build
 
 run:
-  command: pnpm --filter ./apps/backend... run start:prod
+  command: pnpm --filter backend... run start:prod
+  network:
+    port: 3000
