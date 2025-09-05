@@ -5,13 +5,9 @@ build:
   commands:
     - corepack enable
     - corepack prepare pnpm@8.15.0 --activate
-    # Install all workspace deps (dev deps included so prisma CLI is available)
     - pnpm install --frozen-lockfile
-    # Generate prisma client for backend
     - pnpm --filter backend... run prisma:generate
-    # Build shared packages
     - pnpm --filter "./packages/**" run build --if-present
-    # Build backend TypeScript
     - pnpm --filter backend... run build
 
 run:
@@ -25,7 +21,7 @@ run:
       value: '8080'
     - name: HOST
       value: '0.0.0.0'
-    # Add your database URL and other environment variables here
+    # Uncomment and set these values in the AWS App Runner console
     # - name: DATABASE_URL
     #   value: your-database-url
     # - name: CLERK_PUBLISHABLE_KEY
