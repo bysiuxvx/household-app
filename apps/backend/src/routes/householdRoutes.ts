@@ -155,129 +155,72 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
   try {
     const user: User = await clerkClient.users.getUser(userId)
 
-    const [userRecord, households] = await prisma.$transaction([
-      prisma.user.upsert({
-        where: { id: userId },
-        update: {},
-        create: {
-          id: user.id,
-          email: user.primaryEmailAddress?.emailAddress || '',
-          name:
-            user.firstName || user.lastName
-              ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
-              : undefined,
-          username: user.username,
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {},
+      create: {
+        id: user.id,
+        email: user.primaryEmailAddress?.emailAddress || '',
+        name:
+          user.firstName || user.lastName
+            ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
+            : undefined,
+        username: user.username,
+      },
+      select: { id: true },
+    })
+
+    const households = await prisma.household.findMany({
+      where: {
+        members: {
+          some: { userId },
         },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          username: true,
-          households: {
-            include: {
-              household: {
-                include: {
-                  lists: {
-                    include: {
-                      items: {
-                        include: {
-                          createdBy: {
-                            select: {
-                              id: true,
-                              name: true,
-                            },
-                          },
-                          completedBy: {
-                            select: {
-                              id: true,
-                              name: true,
-                            },
-                          },
-                        },
-                        orderBy: {
-                          createdAt: 'asc',
-                        },
-                      },
-                      createdBy: {
-                        select: {
-                          id: true,
-                          name: true,
-                        },
-                      },
-                    },
-                    orderBy: {
-                      createdAt: 'asc',
-                    },
-                  },
-                  members: {
-                    include: {
-                      user: {
-                        select: {
-                          id: true,
-                          name: true,
-                          email: true,
-                          username: true,
-                        },
-                      },
-                    },
-                  },
-                },
+      },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                username: true,
               },
             },
           },
         },
-      }),
-      prisma.household.findMany({
-        where: {
-          members: {
-            some: {
-              userId: userId,
-            },
-          },
-        },
-        include: {
-          members: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  username: true,
-                },
-              },
-            },
-          },
-          lists: {
-            include: {
-              items: {
-                include: {
-                  createdBy: {
-                    select: {
-                      id: true,
-                      name: true,
-                      username: true,
-                    },
+        lists: {
+          include: {
+            items: {
+              include: {
+                createdBy: {
+                  select: {
+                    id: true,
+                    name: true,
+                    username: true,
                   },
-                  completedBy: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
+                },
+                completedBy: {
+                  select: {
+                    id: true,
+                    name: true,
                   },
                 },
               },
-              createdBy: {
-                select: {
-                  id: true,
-                  name: true,
-                },
+              orderBy: { createdAt: 'asc' },
+            },
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
               },
             },
           },
+          orderBy: { createdAt: 'asc' },
         },
-      }),
-    ])
+      },
+      orderBy: { createdAt: 'asc' },
+    })
 
     res.json(households)
   } catch (error) {
