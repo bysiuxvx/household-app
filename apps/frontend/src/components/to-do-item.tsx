@@ -30,6 +30,10 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
   const [editText, setEditText] = useState(item.text)
 
   const handleSave = () => {
+    if (editText.trim() === item.text) {
+      setIsEditing(false)
+      return
+    }
     if (editText.trim()) {
       onEdit(item.id, editText.trim())
       setIsEditing(false)
