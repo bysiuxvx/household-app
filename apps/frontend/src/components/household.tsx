@@ -14,40 +14,6 @@ import { Card, CardContent, CardDescription, CardTitle } from './ui/card.tsx'
 import { Skeleton } from './ui/skeleton.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
 
-// interface User {
-//   id: string
-//   name: string | null
-//   email: string
-//   username: string | null
-// }
-
-// interface ListItem {
-//   id: string
-//   text: string
-//   description: string | null
-//   completed: boolean
-//   completedAt: string | null
-//   priority: Priority | null
-//   dueDate: string | null
-//   listId: string
-//   createdById: string
-//   createdBy: Pick<User, 'id' | 'name'>
-//   completedBy: Pick<User, 'id' | 'name'> | null
-//   createdAt: string
-//   updatedAt: string
-//   type: ItemType
-// }
-
-// interface List {
-//   id: string
-//   name: string
-//   type: ItemType
-//   householdId: string
-//   createdById: string
-//   items: ListItem[]
-//   createdBy: Pick<User, 'id' | 'name'>
-// }
-
 async function createListItem(
   newItem: {
     text: string
@@ -472,6 +438,7 @@ function Household() {
                   ...item,
                   assignedTo: item.completedBy?.name || item.createdBy?.name || 'You',
                   priority: item.priority as Priority | undefined,
+                  createdBy: item.createdBy,
                 }}
                 typeOfList='TODO'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}

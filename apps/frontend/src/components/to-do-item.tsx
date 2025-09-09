@@ -15,6 +15,9 @@ interface TodoItemProps {
     completed: boolean
     assignedTo?: string
     priority?: Priority
+    createdBy?: {
+      username: string
+    }
   }
   onToggle: (completed: boolean) => void
   onEdit: (id: string, text: string) => void
@@ -90,9 +93,9 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                       {item.priority}
                     </Badge>
                   )}
-                  {item.assignedTo && typeOfList === 'TODO' && (
+                  {item.createdBy?.username && typeOfList === 'TODO' && (
                     <Badge variant='outline' className='text-xs'>
-                      {item.assignedTo}
+                      {item.createdBy.username}
                     </Badge>
                   )}
                 </div>
