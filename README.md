@@ -24,7 +24,7 @@ A modern, full-stack application for managing household tasks.
 ### Backend
 - **Runtime**: Node.js
 - **Framework**: Express.js
-- **Database**: Prisma ORM
+- **Database**: PostgreSQL handled by Prisma
 - **Validation**: Zod
 - **Authentication**: Clerk
 - **Date Handling**: date-fns
