@@ -109,6 +109,7 @@ householdRouter.get(
                     select: {
                       id: true,
                       name: true,
+                      username: true,
                     },
                   },
                   completedBy: {
@@ -249,7 +250,23 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
           },
           lists: {
             include: {
-              items: true,
+              items: {
+                include: {
+                  createdBy: {
+                    select: {
+                      id: true,
+                      name: true,
+                      username: true,
+                    },
+                  },
+                  completedBy: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
               createdBy: {
                 select: {
                   id: true,
