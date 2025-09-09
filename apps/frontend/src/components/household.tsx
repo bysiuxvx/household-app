@@ -438,6 +438,7 @@ function Household() {
                   ...item,
                   assignedTo: item.completedBy?.name || item.createdBy?.name || 'You',
                   priority: item.priority as Priority | undefined,
+                  createdBy: item.createdBy,
                 }}
                 typeOfList='TODO'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
