@@ -1,13 +1,11 @@
 import config from '../config.ts'
+import { getHeaders } from './get-headers.ts'
 
 export async function loadHouseholds(getToken: any) {
   const token = await getToken()
   const response = await fetch(`${config.apiBaseUrl}/api/households`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getHeaders(token),
   })
 
   if (!response.ok) {

@@ -13,6 +13,7 @@ import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 import config from '../../config.ts'
 import type { Household } from '../../models/models.ts'
 import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
+import { getHeaders } from '../../utils/get-headers.ts'
 import { Button } from '../ui/button.tsx'
 import {
   Dialog,
@@ -82,10 +83,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     try {
       const response = await fetch(url, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
       })
 
       if (!response.ok) {
@@ -121,10 +119,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     try {
       const response = await fetch(url, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({ secret: data.secret }),
       })
 
@@ -160,10 +155,7 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({ householdId: currentHousehold!.id }),
       })
 

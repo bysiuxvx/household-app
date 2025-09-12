@@ -7,6 +7,7 @@ import { useCallback } from 'react'
 import config from '../config'
 import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
 import { selectedHouseholdAtom } from '../store/store.ts'
+import { getHeaders } from '../utils/get-headers.ts'
 import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
@@ -28,10 +29,7 @@ async function createListItem(
   const token = await getToken()
   const response = await fetch(`${config.apiBaseUrl}/api/lists/${newItem.listId}/items`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getHeaders(token),
     body: JSON.stringify({
       text: newItem.text,
       description: newItem.description,
@@ -54,10 +52,7 @@ async function toggleListItem(itemId: string, completed: boolean, getToken: () =
   try {
     const response = await fetch(`${config.apiBaseUrl}/api/list-items/${itemId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getHeaders(token),
       body: JSON.stringify({ completed }),
     })
 
@@ -79,10 +74,7 @@ async function deleteListItem(itemId: string, getToken: () => Promise<string>) {
   const token = await getToken()
   const response = await fetch(`${config.apiBaseUrl}/api/lists/items/${itemId}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getHeaders(token),
   })
 
   if (!response.ok) {
@@ -240,9 +232,7 @@ function Household() {
     const token = await getToken()
     try {
       const response = await fetch(`${config.apiBaseUrl}/api/households/${selectedHousehold.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
       })
 
       if (response.ok) {
@@ -264,10 +254,7 @@ function Household() {
       const token = await getToken()
       return fetch(`${config.apiBaseUrl}/api/lists/items/${itemId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({ text }),
       }).then((res) => {
         if (!res.ok) throw new Error('Failed to update item')
@@ -347,10 +334,7 @@ function Household() {
     try {
       const response = await fetch(`${config.apiBaseUrl}/api/lists/${listId}/items`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
       })
 
       if (!response.ok) {
