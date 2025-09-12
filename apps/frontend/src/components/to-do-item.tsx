@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from 'date-fns'
 import { Check, Edit2, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 
@@ -41,6 +42,8 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
     MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     HIGH: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   }
+
+  const completedActionName: string = typeOfList === 'TODO' ? 'Completed' : 'Bought'
 
   return (
     <Card className={`transition-all ${item.completed ? 'opacity-60' : ''}`}>
@@ -94,7 +97,12 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                     </Badge>
                   )}
                 </div>
-                {item.completed}
+                {item.completedAt && (
+                  <p className='text-xs text-muted-foreground'>
+                    {completedActionName}{' '}
+                    {formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}
+                  </p>
+                )}
               </div>
             )}
           </div>
