@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { HOUSEHOLD_MIN_NAME_LENGTH } from '@household/shared'
 
 import config from '../config'
+import { getHeaders } from '../utils/get-headers.ts'
 import { Button } from './ui/button.tsx'
 import {
   Dialog,
@@ -82,10 +83,7 @@ function CreateHouseholdModal({ open, setOpen }: ModalProps) {
       const token = await getToken()
       const response = await fetch(`${config.apiBaseUrl}/api/households`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({ name: data.name }),
       })
 
@@ -110,10 +108,7 @@ function CreateHouseholdModal({ open, setOpen }: ModalProps) {
       const token = await getToken()
       const response = await fetch(`${config.apiBaseUrl}/api/verification/validate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({
           code: data.verificationCode,
           secret: data.secret,

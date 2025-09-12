@@ -7,9 +7,11 @@ import { useCallback } from 'react'
 import config from '../config'
 import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
 import { selectedHouseholdAtom } from '../store/store.ts'
+import { getHeaders } from '../utils/get-headers.ts'
 import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
+import { Button } from './ui/button.tsx'
 import { Card, CardContent, CardDescription, CardTitle } from './ui/card.tsx'
 import { Skeleton } from './ui/skeleton.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
@@ -27,10 +29,7 @@ async function createListItem(
   const token = await getToken()
   const response = await fetch(`${config.apiBaseUrl}/api/lists/${newItem.listId}/items`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getHeaders(token),
     body: JSON.stringify({
       text: newItem.text,
       description: newItem.description,
@@ -53,10 +52,7 @@ async function toggleListItem(itemId: string, completed: boolean, getToken: () =
   try {
     const response = await fetch(`${config.apiBaseUrl}/api/list-items/${itemId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
+      headers: getHeaders(token),
       body: JSON.stringify({ completed }),
     })
 
@@ -78,10 +74,7 @@ async function deleteListItem(itemId: string, getToken: () => Promise<string>) {
   const token = await getToken()
   const response = await fetch(`${config.apiBaseUrl}/api/lists/items/${itemId}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: getHeaders(token),
   })
 
   if (!response.ok) {
@@ -239,9 +232,7 @@ function Household() {
     const token = await getToken()
     try {
       const response = await fetch(`${config.apiBaseUrl}/api/households/${selectedHousehold.id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
       })
 
       if (response.ok) {
@@ -263,10 +254,7 @@ function Household() {
       const token = await getToken()
       return fetch(`${config.apiBaseUrl}/api/lists/items/${itemId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+        headers: getHeaders(token),
         body: JSON.stringify({ text }),
       }).then((res) => {
         if (!res.ok) throw new Error('Failed to update item')
@@ -339,6 +327,29 @@ function Household() {
       refreshHousehold()
     },
   })
+
+  async function handleDeleteCompletedItems(listId: string) {
+    const token = await getToken()
+
+    try {
+      const response = await fetch(`${config.apiBaseUrl}/api/lists/${listId}/items`, {
+        method: 'DELETE',
+        headers: getHeaders(token),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete completed items')
+      }
+
+      if (response.ok) {
+        refreshHousehold()
+      }
+      return response.json()
+    } catch (error) {
+      console.error('Error deleting completed items:', error)
+      throw error
+    }
+  }
 
   const handleAddItem = (itemData: { text: string; priority?: Priority; type: ListType }) => {
     const listType = itemData.type.toUpperCase() as 'TODO' | 'SHOPPING'
@@ -446,7 +457,18 @@ function Household() {
 
         {completedTodos.length > 0 && (
           <div className='space-y-2'>
-            <h3 className='text-sm font-medium text-muted-foreground'>Completed</h3>
+            <div className='flex items-center justify-between'>
+              <h3 className='text-sm font-medium text-muted-foreground'>
+                Completed {completedTodos.length >= 3 ? `(${completedTodos.length})` : ''}
+              </h3>
+              <Button
+                variant='destructive'
+                size='sm'
+                onClick={() => handleDeleteCompletedItems(todoList.id)}
+              >
+                Clear all
+              </Button>
+            </div>
             {completedTodos.map((item) => (
               <TodoItem
                 key={item.id}
@@ -497,7 +519,18 @@ function Household() {
 
         {completedGroceries.length > 0 && (
           <div className='space-y-2'>
-            <h3 className='text-sm font-medium text-muted-foreground'>In Cart</h3>
+            <div className='flex items-center justify-between'>
+              <h3 className='text-sm font-medium text-muted-foreground'>
+                In Cart {completedGroceries.length >= 3 ? `(${completedGroceries.length})` : ''}
+              </h3>
+              <Button
+                variant='destructive'
+                size='sm'
+                onClick={() => handleDeleteCompletedItems(shoppingList.id)}
+              >
+                Clear all
+              </Button>
+            </div>
             {completedGroceries.map((item) => (
               <TodoItem
                 key={item.id}
