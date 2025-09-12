@@ -1,7 +1,7 @@
 import { Check, Edit2, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 
-import type { ListType, Priority } from '../models/models.ts'
+import type { ListItem, ListType } from '../models/models.ts'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
 import { Card, CardContent } from './ui/card.tsx'
@@ -9,16 +9,7 @@ import { Checkbox } from './ui/checkbox.tsx'
 import { Input } from './ui/input.tsx'
 
 interface TodoItemProps {
-  item: {
-    id: string
-    text: string
-    completed: boolean
-    assignedTo?: string
-    priority?: Priority
-    createdBy?: {
-      username: string
-    }
-  }
+  item: ListItem
   onToggle: (completed: boolean) => void
   onEdit: (id: string, text: string) => void
   onDelete: (id: string) => void
@@ -103,6 +94,7 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                     </Badge>
                   )}
                 </div>
+                {item.completed}
               </div>
             )}
           </div>

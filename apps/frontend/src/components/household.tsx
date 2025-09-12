@@ -434,12 +434,7 @@ function Household() {
             {activeTodos.map((item) => (
               <TodoItem
                 key={item.id}
-                item={{
-                  ...item,
-                  assignedTo: item.completedBy?.name || item.createdBy?.name || 'You',
-                  priority: item.priority as Priority | undefined,
-                  createdBy: item.createdBy,
-                }}
+                item={item}
                 typeOfList='TODO'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
@@ -455,11 +450,7 @@ function Household() {
             {completedTodos.map((item) => (
               <TodoItem
                 key={item.id}
-                item={{
-                  ...item,
-                  assignedTo: item.completedBy?.name || item.createdBy?.name || 'You',
-                  priority: item.priority as Priority | undefined,
-                }}
+                item={item}
                 typeOfList='TODO'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
@@ -494,11 +485,7 @@ function Household() {
             {activeGroceries.map((item) => (
               <TodoItem
                 key={item.id}
-                item={{
-                  ...item,
-                  priority: item.priority || undefined,
-                  assignedTo: item.completedBy?.name || item.createdBy?.name || undefined,
-                }}
+                item={item}
                 typeOfList='SHOPPING'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
@@ -514,10 +501,7 @@ function Household() {
             {completedGroceries.map((item) => (
               <TodoItem
                 key={item.id}
-                item={{
-                  ...item,
-                  assignedTo: item.completedBy?.name || item.createdBy?.name || undefined,
-                }}
+                item={item}
                 typeOfList='SHOPPING'
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
