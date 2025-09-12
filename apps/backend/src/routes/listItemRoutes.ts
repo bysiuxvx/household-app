@@ -326,4 +326,47 @@ listItemRouter.delete('/lists/items/:itemId', async (req, res) => {
   }
 })
 
+// bulk delete completed items
+
+listItemRouter.delete('/lists/:listId/items', async (req, res) => {
+  const { userId } = getAuth(req)
+  const { listId } = req.params
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  try {
+    const list = await prisma.list.findFirst({
+      where: {
+        id: listId,
+        household: {
+          members: {
+            some: {
+              userId,
+            },
+          },
+        },
+      },
+    })
+
+    if (!list) {
+      return res.status(404).json({ error: 'List not found or access denied' })
+    }
+
+    const { count } = await prisma.listItem.deleteMany({
+      where: {
+        listId,
+        completed: true,
+      },
+    })
+    res.json({
+      success: true,
+      message: `Successfully deleted ${count} completed items`,
+    })
+  } catch (error) {
+    console.error('Error deleting list items:', error)
+  }
+})
+
 export { listItemRouter }
