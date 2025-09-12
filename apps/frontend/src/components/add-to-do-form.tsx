@@ -32,6 +32,7 @@ export function AddTodoForm({ onAdd, type, placeholder, isSubmitting = false }: 
         type,
       })
       setText('')
+      setPriority(defaultPriority)
       setIsExpanded(false)
     }
   }

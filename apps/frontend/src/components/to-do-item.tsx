@@ -1,7 +1,8 @@
+import { formatDistanceToNow } from 'date-fns'
 import { Check, Edit2, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 
-import type { ListType, Priority } from '../models/models.ts'
+import type { ListItem, ListType } from '../models/models.ts'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
 import { Card, CardContent } from './ui/card.tsx'
@@ -9,16 +10,7 @@ import { Checkbox } from './ui/checkbox.tsx'
 import { Input } from './ui/input.tsx'
 
 interface TodoItemProps {
-  item: {
-    id: string
-    text: string
-    completed: boolean
-    assignedTo?: string
-    priority?: Priority
-    createdBy?: {
-      username: string
-    }
-  }
+  item: ListItem
   onToggle: (completed: boolean) => void
   onEdit: (id: string, text: string) => void
   onDelete: (id: string) => void
@@ -30,6 +22,10 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
   const [editText, setEditText] = useState(item.text)
 
   const handleSave = () => {
+    if (editText.trim() === item.text) {
+      setIsEditing(false)
+      return
+    }
     if (editText.trim()) {
       onEdit(item.id, editText.trim())
       setIsEditing(false)
@@ -46,6 +42,8 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
     MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
     HIGH: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
   }
+
+  const completedActionName: string = typeOfList === 'TODO' ? 'Completed' : 'Bought'
 
   return (
     <Card className={`transition-all ${item.completed ? 'opacity-60' : ''}`}>
@@ -99,6 +97,12 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                     </Badge>
                   )}
                 </div>
+                {item.completedAt && (
+                  <p className='text-xs text-muted-foreground'>
+                    {completedActionName}{' '}
+                    {formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}
+                  </p>
+                )}
               </div>
             )}
           </div>
