@@ -10,6 +10,7 @@ import { selectedHouseholdAtom } from '../store/store.ts'
 import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
+import { Button } from './ui/button.tsx'
 import { Card, CardContent, CardDescription, CardTitle } from './ui/card.tsx'
 import { Skeleton } from './ui/skeleton.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
@@ -340,6 +341,32 @@ function Household() {
     },
   })
 
+  async function handleDeleteCompletedItems(listId: string) {
+    const token = await getToken()
+
+    try {
+      const response = await fetch(`${config.apiBaseUrl}/api/lists/${listId}/items`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete completed items')
+      }
+
+      if (response.ok) {
+        refreshHousehold()
+      }
+      return response.json()
+    } catch (error) {
+      console.error('Error deleting completed items:', error)
+      throw error
+    }
+  }
+
   const handleAddItem = (itemData: { text: string; priority?: Priority; type: ListType }) => {
     const listType = itemData.type.toUpperCase() as 'TODO' | 'SHOPPING'
     const list = listType === 'TODO' ? todoList : shoppingList
@@ -446,7 +473,18 @@ function Household() {
 
         {completedTodos.length > 0 && (
           <div className='space-y-2'>
-            <h3 className='text-sm font-medium text-muted-foreground'>Completed</h3>
+            <div className='flex items-center justify-between'>
+              <h3 className='text-sm font-medium text-muted-foreground'>
+                Completed {completedTodos.length >= 3 ? `(${completedTodos.length})` : ''}
+              </h3>
+              <Button
+                variant='destructive'
+                size='sm'
+                onClick={() => handleDeleteCompletedItems(todoList.id)}
+              >
+                Clear all
+              </Button>
+            </div>
             {completedTodos.map((item) => (
               <TodoItem
                 key={item.id}
@@ -497,7 +535,18 @@ function Household() {
 
         {completedGroceries.length > 0 && (
           <div className='space-y-2'>
-            <h3 className='text-sm font-medium text-muted-foreground'>In Cart</h3>
+            <div className='flex items-center justify-between'>
+              <h3 className='text-sm font-medium text-muted-foreground'>
+                In Cart {completedGroceries.length >= 3 ? `(${completedGroceries.length})` : ''}
+              </h3>
+              <Button
+                variant='destructive'
+                size='sm'
+                onClick={() => handleDeleteCompletedItems(shoppingList.id)}
+              >
+                Clear all
+              </Button>
+            </div>
             {completedGroceries.map((item) => (
               <TodoItem
                 key={item.id}
