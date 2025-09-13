@@ -1,6 +1,6 @@
 import { CheckSquare, MoreVertical, ShoppingCart, Users } from 'lucide-react'
 
-import type { Household as HouseholdType, List } from '../models/models.ts'
+import type { Household as HouseholdType, List, ListItem } from '../models/models.ts'
 import { Button } from './ui/button.tsx'
 import { Card, CardHeader, CardTitle } from './ui/card.tsx'
 
@@ -12,13 +12,15 @@ interface HouseholdCardProps {
 export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
   const memberCount = household.members?.length || 0
 
-  const groceryList: List | undefined = household.lists?.find(
-    (list: List) => list.type === 'SHOPPING'
-  )
-  const groceryCount: number = groceryList?.items?.length || 0
+  const activeGroceryItems: ListItem[] = household.lists
+    ?.find((list: List) => list.type === 'SHOPPING')
+    ?.items?.filter((item: ListItem) => !item.completed)
+  const groceryCount: number = activeGroceryItems?.length || 0
 
-  const todoList: List | undefined = household.lists?.find((list) => list.type === 'TODO')
-  const todoCount: number = todoList?.items?.length || 0
+  const activeTodoItems: ListItem[] = household.lists
+    ?.find((list: List) => list.type === 'TODO')
+    ?.items?.filter((item: ListItem) => !item.completed)
+  const todoCount: number = activeTodoItems?.length || 0
 
   const displayMembers = household.members?.slice(0, 3) || []
   return (
@@ -61,18 +63,18 @@ export function HouseholdCard({ household, onClick }: HouseholdCardProps) {
 
           <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
             <div className='flex items-center gap-1'>
-              <ShoppingCart className='h-4 w-4' />
-              <span className='font-medium'>{groceryCount || 0}</span>
-            </div>
-            <span className='text-xs mt-1'>{groceryCount === 1 ? 'Item' : 'Items'}</span>
-          </div>
-
-          <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
-            <div className='flex items-center gap-1'>
               <CheckSquare className='h-4 w-4' />
               <span className='font-medium'>{todoCount}</span>
             </div>
             <span className='text-xs mt-1'>{todoCount === 1 ? 'Task' : 'Tasks'}</span>
+          </div>
+
+          <div className='flex flex-col items-center justify-center p-2 bg-muted/20 rounded-lg'>
+            <div className='flex items-center gap-1'>
+              <ShoppingCart className='h-4 w-4' />
+              <span className='font-medium'>{groceryCount || 0}</span>
+            </div>
+            <span className='text-xs mt-1'>{groceryCount === 1 ? 'Item' : 'Items'}</span>
           </div>
         </div>
       </CardHeader>
