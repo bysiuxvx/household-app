@@ -77,9 +77,7 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
               </div>
             ) : (
               <div className='space-y-1'>
-                <p
-                  className={`text-sm ${item.completed ? 'line-through text-muted-foreground' : ''}`}
-                >
+                <p className={`text-sm ${item.completed ? 'text-muted-foreground' : ''}`}>
                   {item.text}
                 </p>
                 <div className='flex items-center gap-2'>
