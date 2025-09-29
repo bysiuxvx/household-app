@@ -2,7 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { CheckSquare, ShoppingCart } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import config from '../config'
 import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
@@ -92,6 +92,7 @@ function Household() {
   const { getToken } = useAuth()
   const queryClient = useQueryClient()
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
+  const [clearingListId, setClearingListId] = useState<string | null>(null)
 
   const todoList = getListByType(selectedHousehold.lists, 'TODO')
   const shoppingList = getListByType(selectedHousehold.lists, 'SHOPPING')
@@ -132,7 +133,6 @@ function Household() {
       ])
 
       if (previousHousehold) {
-        // Generate a temporary ID for the optimistic update
         const tempId = `temp-${Date.now()}`
         const newItemWithId = {
           ...newItem,
@@ -329,6 +329,7 @@ function Household() {
   })
 
   async function handleDeleteCompletedItems(listId: string) {
+    setClearingListId(listId)
     const token = await getToken()
 
     try {
@@ -347,7 +348,8 @@ function Household() {
       return response.json()
     } catch (error) {
       console.error('Error deleting completed items:', error)
-      throw error
+    } finally {
+      setClearingListId(null)
     }
   }
 
@@ -465,8 +467,9 @@ function Household() {
                 variant='destructive'
                 size='sm'
                 onClick={() => handleDeleteCompletedItems(todoList.id)}
+                disabled={!!clearingListId}
               >
-                Clear all
+                {clearingListId ? 'Clearing...' : 'Clear all'}
               </Button>
             </div>
             {completedTodos.map((item) => (
@@ -527,8 +530,9 @@ function Household() {
                 variant='destructive'
                 size='sm'
                 onClick={() => handleDeleteCompletedItems(shoppingList.id)}
+                disabled={!!clearingListId}
               >
-                Clear all
+                {clearingListId ? 'Clearing...' : 'Clear all'}
               </Button>
             </div>
             {completedGroceries.map((item) => (
