@@ -95,12 +95,11 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
                     </Badge>
                   )}
                 </div>
-                {item.completedAt && (
-                  <p className='text-xs text-muted-foreground'>
-                    {completedActionName}{' '}
-                    {formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}
-                  </p>
-                )}
+                <p className='text-xs text-muted-foreground'>
+                  {item?.completedAt
+                    ? `${completedActionName} ${formatDistanceToNow(new Date(item.completedAt), { addSuffix: true })}`
+                    : `Added ${formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}`}
+                </p>
               </div>
             )}
           </div>
