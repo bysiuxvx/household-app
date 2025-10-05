@@ -2,7 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { CheckSquare, ShoppingCart } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import config from '../config'
 import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
@@ -93,6 +93,8 @@ function Household() {
   const queryClient = useQueryClient()
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
   const [clearingListId, setClearingListId] = useState<string | null>(null)
+  const [completedTodos, setCompletedTodos] = useState<ListItem[]>([])
+  const [completedGroceries, setCompletedGroceries] = useState<ListItem[]>([])
 
   const todoList = getListByType(selectedHousehold.lists, 'TODO')
   const shoppingList = getListByType(selectedHousehold.lists, 'SHOPPING')
@@ -112,10 +114,15 @@ function Household() {
         return priorityOrder[priorityA] - priorityOrder[priorityB]
       }) || []
 
-  const completedTodos = todoList?.items.filter((item) => item.completed) || []
-
   const activeGroceries = shoppingList?.items.filter((item) => !item.completed) || []
-  const completedGroceries = shoppingList?.items.filter((item) => item.completed) || []
+
+  useEffect(() => {
+    setCompletedTodos(todoList?.items.filter((item) => item.completed) || [])
+  }, [todoList?.items])
+
+  useEffect(() => {
+    setCompletedGroceries(shoppingList?.items.filter((item) => item.completed) || [])
+  }, [shoppingList?.items])
 
   // Mutations
   const addItemMutation = useMutation({
@@ -328,7 +335,7 @@ function Household() {
     },
   })
 
-  async function handleDeleteCompletedItems(listId: string) {
+  async function handleDeleteCompletedItems(listId: string, listType: ListType) {
     setClearingListId(listId)
     const token = await getToken()
 
@@ -342,10 +349,13 @@ function Household() {
         throw new Error('Failed to delete completed items')
       }
 
-      if (response.ok) {
+      const result: any = await response.json()
+
+      if (result.success) {
+        listType === 'TODO' ? setCompletedTodos([]) : setCompletedGroceries([])
         refreshHousehold()
       }
-      return response.json()
+      return result
     } catch (error) {
       console.error('Error deleting completed items:', error)
     } finally {
@@ -466,7 +476,7 @@ function Household() {
               <Button
                 variant='destructive'
                 size='sm'
-                onClick={() => handleDeleteCompletedItems(todoList.id)}
+                onClick={() => handleDeleteCompletedItems(todoList.id, 'TODO')}
                 disabled={!!clearingListId}
               >
                 {clearingListId ? 'Clearing...' : 'Clear all'}
@@ -529,7 +539,7 @@ function Household() {
               <Button
                 variant='destructive'
                 size='sm'
-                onClick={() => handleDeleteCompletedItems(shoppingList.id)}
+                onClick={() => handleDeleteCompletedItems(shoppingList.id, 'SHOPPING')}
                 disabled={!!clearingListId}
               >
                 {clearingListId ? 'Clearing...' : 'Clear all'}
