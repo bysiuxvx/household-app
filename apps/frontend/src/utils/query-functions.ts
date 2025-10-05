@@ -1,4 +1,5 @@
 import config from '../config.ts'
+import { type Household } from '../models/models'
 import { getHeaders } from './get-headers.ts'
 
 export async function loadHouseholds(getToken: any) {
@@ -10,6 +11,23 @@ export async function loadHouseholds(getToken: any) {
 
   if (!response.ok) {
     throw new Error('Failed to fetch households')
+  }
+
+  return response.json()
+}
+
+export async function loadHouseholdById(
+  householdId: string,
+  getToken: () => Promise<string>
+): Promise<Household> {
+  const token = await getToken()
+  const response = await fetch(`${config.apiBaseUrl}/api/households/${householdId}`, {
+    method: 'GET',
+    headers: getHeaders(token),
+  })
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch household')
   }
 
   return response.json()

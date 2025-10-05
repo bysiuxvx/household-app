@@ -1,13 +1,20 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { CheckSquare, ShoppingCart } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 import config from '../config'
-import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
+import type {
+  Household as HouseholdData,
+  List,
+  ListItem,
+  ListType,
+  Priority,
+} from '../models/models.ts'
 import { selectedHouseholdAtom } from '../store/store.ts'
 import { getHeaders } from '../utils/get-headers.ts'
+import { loadHouseholdById } from '../utils/query-functions.ts'
 import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
@@ -95,8 +102,33 @@ function Household() {
   const [completedTodos, setCompletedTodos] = useState<ListItem[]>([])
   const [completedGroceries, setCompletedGroceries] = useState<ListItem[]>([])
 
-  const todoList = getListByType(selectedHousehold.lists, 'TODO')
-  const shoppingList = getListByType(selectedHousehold.lists, 'SHOPPING')
+  const {
+    data: householdData,
+    isLoading,
+    isSuccess,
+    error,
+  } = useQuery<HouseholdData>({
+    queryKey: ['household', selectedHousehold?.id],
+    queryFn: async () => {
+      if (!selectedHousehold?.id) {
+        throw new Error('No household ID provided')
+      }
+      return loadHouseholdById(selectedHousehold.id, getToken)
+    },
+    enabled: !!selectedHousehold?.id,
+    refetchOnWindowFocus: true,
+    refetchInterval: 30000,
+  })
+
+  useEffect(() => {
+    if (isSuccess && householdData) {
+      // @ts-ignore
+      setSelectedHousehold(householdData)
+    }
+  }, [isSuccess, householdData, setSelectedHousehold])
+
+  const todoList: List = getListByType(householdData?.lists || [], 'TODO')
+  const shoppingList: List = getListByType(householdData?.lists || [], 'SHOPPING')
 
   const priorityOrder = {
     HIGH: 1,
@@ -129,58 +161,11 @@ function Household() {
       const token = await getToken()
       return createListItem(newItem, () => Promise.resolve(token || ''))
     },
-    onMutate: async (newItem) => {
-      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold.id] })
-
-      // Snapshot the previous value
-      const previousHousehold = queryClient.getQueryData<HouseholdData>([
-        'household',
-        selectedHousehold.id,
-      ])
-
-      if (previousHousehold) {
-        const tempId = `temp-${Date.now()}`
-        const newItemWithId = {
-          ...newItem,
-          id: tempId,
-          completed: false,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          createdById: user?.id || '',
-          createdBy: {
-            id: user?.id || '',
-            name: user?.fullName || 'You',
-          },
-          completedBy: null,
-          completedAt: null,
-        }
-
-        const updatedLists = previousHousehold.lists.map((list) => {
-          if (list.id === newItem.listId) {
-            return {
-              ...list,
-              items: [...list.items, newItemWithId],
-            }
-          }
-          return list
-        })
-
-        queryClient.setQueryData(['household', selectedHousehold.id], {
-          ...previousHousehold,
-          lists: updatedLists,
-        })
-      }
-
-      return { previousHousehold }
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
     },
-    onError: (err, newItem, context) => {
-      // Rollback on error
-      if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', selectedHousehold.id], context.previousHousehold)
-      }
-    },
-    onSettled: () => {
-      refreshHousehold()
+    onError: (error) => {
+      console.error('Error adding item:', error)
     },
   })
 
@@ -190,13 +175,14 @@ function Household() {
       return toggleListItem(itemId, completed, () => Promise.resolve(token || ''))
     },
     onMutate: async ({ itemId, completed }) => {
-      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold.id] })
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold?.id] })
 
       const previousHousehold = queryClient.getQueryData<HouseholdData>([
         'household',
-        selectedHousehold.id,
+        selectedHousehold?.id,
       ])
 
+      // Optimistically update the UI
       if (previousHousehold) {
         const updatedLists = previousHousehold.lists.map((list) => ({
           ...list,
@@ -207,14 +193,14 @@ function Household() {
                   completed,
                   completedAt: completed ? new Date().toISOString() : null,
                   completedBy: completed
-                    ? { id: user?.id || '', name: user?.fullName || user?.username || 'You' }
+                    ? { id: user?.id || '', name: user?.fullName || 'You' }
                     : null,
                 }
               : item
           ),
         }))
 
-        queryClient.setQueryData(['household', selectedHousehold.id], {
+        queryClient.setQueryData(['household', selectedHousehold?.id], {
           ...previousHousehold,
           lists: updatedLists,
         })
@@ -223,77 +209,70 @@ function Household() {
       return { previousHousehold }
     },
     onError: (err, variables, context) => {
-      if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', selectedHousehold.id], context.previousHousehold)
-      }
-    },
-    onSettled: () => {
-      refreshHousehold()
-    },
-  })
-
-  const refreshHousehold = async () => {
-    if (!selectedHousehold) return
-
-    const token = await getToken()
-    try {
-      const response = await fetch(`${config.apiBaseUrl}/api/households/${selectedHousehold.id}`, {
-        headers: getHeaders(token),
-      })
-
-      if (response.ok) {
-        const updatedHousehold = await response.json()
-        // @ts-ignore
-        setSelectedHousehold(updatedHousehold)
-
-        queryClient.setQueryData(['household', selectedHousehold.id], updatedHousehold)
-        return updatedHousehold
-      }
-    } catch (error) {
-      console.error('Error refreshing household:', error)
-      throw error
-    }
-  }
-
-  const editItemMutation = useMutation({
-    mutationFn: async ({ itemId, text }: { itemId: string; text: string }) => {
-      const token = await getToken()
-      return fetch(`${config.apiBaseUrl}/api/lists/items/${itemId}`, {
-        method: 'PUT',
-        headers: getHeaders(token),
-        body: JSON.stringify({ text }),
-      }).then((res) => {
-        if (!res.ok) throw new Error('Failed to update item')
-        return res.json()
-      })
-    },
-    onMutate: async ({ itemId, text }) => {
-      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold?.id] })
-      const previousHousehold = queryClient.getQueryData<HouseholdData>([
-        'household',
-        selectedHousehold?.id,
-      ])
-
-      if (previousHousehold) {
-        queryClient.setQueryData(['household', selectedHousehold?.id], {
-          ...previousHousehold,
-          lists: previousHousehold.lists.map((list) => ({
-            ...list,
-            items: list.items.map((item) =>
-              item.id === itemId ? { ...item, text, updatedAt: new Date().toISOString() } : item
-            ),
-          })),
-        })
-      }
-      return { previousHousehold }
-    },
-    onError: (err, variables, context) => {
+      // Revert on error
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
     },
     onSettled: () => {
-      refreshHousehold()
+      // Invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
+    },
+  })
+
+  const editItemMutation = useMutation({
+    mutationFn: async ({ itemId, text }: { itemId: string; text: string }) => {
+      const token = await getToken()
+      const response = await fetch(`${config.apiBaseUrl}/api/lists/items/${itemId}`, {
+        method: 'PUT',
+        headers: getHeaders(token),
+        body: JSON.stringify({ text }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to update item')
+      }
+      return response.json()
+    },
+    onMutate: async ({ itemId, text }) => {
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold?.id] })
+
+      const previousHousehold = queryClient.getQueryData<HouseholdData>([
+        'household',
+        selectedHousehold?.id,
+      ])
+
+      // Optimistically update the UI
+      if (previousHousehold) {
+        const updatedLists = previousHousehold.lists.map((list) => ({
+          ...list,
+          items: list.items.map((item) =>
+            item.id === itemId
+              ? {
+                  ...item,
+                  text,
+                  updatedAt: new Date().toISOString(),
+                }
+              : item
+          ),
+        }))
+
+        queryClient.setQueryData(['household', selectedHousehold?.id], {
+          ...previousHousehold,
+          lists: updatedLists,
+        })
+      }
+
+      return { previousHousehold }
+    },
+    onError: (err, variables, context) => {
+      // revert on error
+      if (context?.previousHousehold) {
+        queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
     },
   })
 
@@ -303,11 +282,11 @@ function Household() {
       return deleteListItem(itemId, () => Promise.resolve(token || ''))
     },
     onMutate: async (itemId) => {
-      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold.id] })
+      await queryClient.cancelQueries({ queryKey: ['household', selectedHousehold?.id] })
 
       const previousHousehold = queryClient.getQueryData<HouseholdData>([
         'household',
-        selectedHousehold.id,
+        selectedHousehold?.id,
       ])
 
       if (previousHousehold) {
@@ -316,7 +295,7 @@ function Household() {
           items: list.items.filter((item) => item.id !== itemId),
         }))
 
-        queryClient.setQueryData(['household', selectedHousehold.id], {
+        queryClient.setQueryData(['household', selectedHousehold?.id], {
           ...previousHousehold,
           lists: updatedLists,
         })
@@ -326,11 +305,12 @@ function Household() {
     },
     onError: (err, variables, context) => {
       if (context?.previousHousehold) {
-        queryClient.setQueryData(['household', selectedHousehold.id], context.previousHousehold)
+        queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
     },
     onSettled: () => {
-      refreshHousehold()
+      // invalidate and refetch
+      queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
     },
   })
 
@@ -348,15 +328,18 @@ function Household() {
         throw new Error('Failed to delete completed items')
       }
 
-      const result: any = await response.json()
+      await queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
 
-      if (result.success) {
-        listType === 'TODO' ? setCompletedTodos([]) : setCompletedGroceries([])
-        refreshHousehold()
+      if (listType === 'TODO') {
+        setCompletedTodos([])
+      } else {
+        setCompletedGroceries([])
       }
-      return result
+
+      return await response.json()
     } catch (error) {
       console.error('Error deleting completed items:', error)
+      throw error
     } finally {
       setClearingListId(null)
     }
