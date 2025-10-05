@@ -2,7 +2,7 @@ import { useAuth, useUser } from '@clerk/clerk-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { CheckSquare, ShoppingCart } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import config from '../config'
 import type { HouseholdData, List, ListItem, ListType, Priority } from '../models/models.ts'
@@ -12,8 +12,7 @@ import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
-import { Card, CardContent, CardDescription, CardTitle } from './ui/card.tsx'
-import { Skeleton } from './ui/skeleton.tsx'
+import { NoActiveItems } from './ui/no-active-items.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
 
 async function createListItem(
@@ -93,6 +92,8 @@ function Household() {
   const queryClient = useQueryClient()
   const [selectedHousehold, setSelectedHousehold] = useAtom(selectedHouseholdAtom)
   const [clearingListId, setClearingListId] = useState<string | null>(null)
+  const [completedTodos, setCompletedTodos] = useState<ListItem[]>([])
+  const [completedGroceries, setCompletedGroceries] = useState<ListItem[]>([])
 
   const todoList = getListByType(selectedHousehold.lists, 'TODO')
   const shoppingList = getListByType(selectedHousehold.lists, 'SHOPPING')
@@ -112,10 +113,15 @@ function Household() {
         return priorityOrder[priorityA] - priorityOrder[priorityB]
       }) || []
 
-  const completedTodos = todoList?.items.filter((item) => item.completed) || []
-
   const activeGroceries = shoppingList?.items.filter((item) => !item.completed) || []
-  const completedGroceries = shoppingList?.items.filter((item) => item.completed) || []
+
+  useEffect(() => {
+    setCompletedTodos(todoList?.items.filter((item) => item.completed) || [])
+  }, [todoList?.items])
+
+  useEffect(() => {
+    setCompletedGroceries(shoppingList?.items.filter((item) => item.completed) || [])
+  }, [shoppingList?.items])
 
   // Mutations
   const addItemMutation = useMutation({
@@ -328,7 +334,7 @@ function Household() {
     },
   })
 
-  async function handleDeleteCompletedItems(listId: string) {
+  async function handleDeleteCompletedItems(listId: string, listType: ListType) {
     setClearingListId(listId)
     const token = await getToken()
 
@@ -342,10 +348,13 @@ function Household() {
         throw new Error('Failed to delete completed items')
       }
 
-      if (response.ok) {
+      const result: any = await response.json()
+
+      if (result.success) {
+        listType === 'TODO' ? setCompletedTodos([]) : setCompletedGroceries([])
         refreshHousehold()
       }
-      return response.json()
+      return result
     } catch (error) {
       console.error('Error deleting completed items:', error)
     } finally {
@@ -390,25 +399,6 @@ function Household() {
     },
     [selectedHousehold, editItemMutation]
   )
-
-  if (!selectedHousehold) {
-    return (
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <Skeleton className='h-10 w-32' />
-          <div className='flex space-x-2'>
-            <Skeleton className='h-10 w-24' />
-            <Skeleton className='h-10 w-24' />
-          </div>
-        </div>
-        <div className='space-y-2'>
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className='h-16 w-full' />
-          ))}
-        </div>
-      </div>
-    )
-  }
 
   return (
     <Tabs defaultValue='todos' className='space-y-4'>
@@ -466,7 +456,7 @@ function Household() {
               <Button
                 variant='destructive'
                 size='sm'
-                onClick={() => handleDeleteCompletedItems(todoList.id)}
+                onClick={() => handleDeleteCompletedItems(todoList.id, 'TODO')}
                 disabled={!!clearingListId}
               >
                 {clearingListId ? 'Clearing...' : 'Clear all'}
@@ -485,15 +475,7 @@ function Household() {
           </div>
         )}
 
-        {todoList?.items.length === 0 && (
-          <Card className='border-dashed border-2'>
-            <CardContent className='flex flex-col items-center justify-center py-12 text-center'>
-              <CheckSquare className='h-12 w-12 text-muted-foreground mb-4' />
-              <CardTitle className='text-lg mb-2'>No tasks yet</CardTitle>
-              <CardDescription>Add your first task to get started</CardDescription>
-            </CardContent>
-          </Card>
-        )}
+        {todoList?.items.length === 0 && <NoActiveItems listType='TODO' />}
       </TabsContent>
 
       <TabsContent value='groceries' className='space-y-4'>
@@ -529,7 +511,7 @@ function Household() {
               <Button
                 variant='destructive'
                 size='sm'
-                onClick={() => handleDeleteCompletedItems(shoppingList.id)}
+                onClick={() => handleDeleteCompletedItems(shoppingList.id, 'SHOPPING')}
                 disabled={!!clearingListId}
               >
                 {clearingListId ? 'Clearing...' : 'Clear all'}
@@ -548,15 +530,7 @@ function Household() {
           </div>
         )}
 
-        {shoppingList?.items.length === 0 && (
-          <Card className='border-dashed border-2'>
-            <CardContent className='flex flex-col items-center justify-center py-12 text-center'>
-              <ShoppingCart className='h-12 w-12 text-muted-foreground mb-4' />
-              <CardTitle className='text-lg mb-2'>No groceries yet</CardTitle>
-              <CardDescription>Add items to your shopping list</CardDescription>
-            </CardContent>
-          </Card>
-        )}
+        {shoppingList?.items.length === 0 && <NoActiveItems listType='SHOPPING' />}
       </TabsContent>
     </Tabs>
   )
