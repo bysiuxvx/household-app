@@ -50,7 +50,7 @@ export async function validateVerificationCode(
 ): Promise<boolean> {
   const now = new Date()
 
-  // First verify the household secret
+  // verify the household secret
   const household = await prisma.household.findUnique({
     where: { id: householdId },
     select: { secret: true },
@@ -92,31 +92,30 @@ export async function validateVerificationCode(
  * @returns The joined household or null if verification failed
  */
 export async function verifyAndJoinHousehold(code: string, secret: string, userId: string) {
-  // Find the verification code
+  // find verification code
   const verification = await prisma.verificationCode.findFirst({
-    where: { 
+    where: {
       code,
       used: false,
-      expiresAt: { gt: new Date() }
+      expiresAt: { gt: new Date() },
     },
   })
 
-  // Check if code exists and isn't expired
+  // check if code exists and isn't expired
   if (!verification || verification.used || isAfter(new Date(), verification.expiresAt)) {
     return null
   }
 
-  // Find the household
+  // find the household
   const household = await prisma.household.findUnique({
     where: { id: verification.householdId },
   })
 
-  // Verify the household exists and secret matches
   if (!household || household.secret !== secret) {
     return null
   }
 
-  // Check if user is already a member of the household
+  // check if user is already a member of the household
   const existingMembership = await prisma.userOnHousehold.findFirst({
     where: {
       userId,
@@ -128,13 +127,13 @@ export async function verifyAndJoinHousehold(code: string, secret: string, userI
     return household
   }
 
-  // Mark the verification code as used
+  // mark the verification code as used
   await prisma.verificationCode.update({
     where: { id: verification.id },
     data: { used: true },
   })
 
-  // Add user to the household
+  // add user to the household
   await prisma.userOnHousehold.create({
     data: {
       userId,
