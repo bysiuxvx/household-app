@@ -13,7 +13,6 @@ import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
 import { NoActiveItems } from './ui/no-active-items.tsx'
-import { Skeleton } from './ui/skeleton.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
 
 async function createListItem(
@@ -400,25 +399,6 @@ function Household() {
     },
     [selectedHousehold, editItemMutation]
   )
-
-  if (!selectedHousehold) {
-    return (
-      <div className='space-y-4'>
-        <div className='flex justify-between items-center'>
-          <Skeleton className='h-10 w-32' />
-          <div className='flex space-x-2'>
-            <Skeleton className='h-10 w-24' />
-            <Skeleton className='h-10 w-24' />
-          </div>
-        </div>
-        <div className='space-y-2'>
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className='h-16 w-full' />
-          ))}
-        </div>
-      </div>
-    )
-  }
 
   return (
     <Tabs defaultValue='todos' className='space-y-4'>
