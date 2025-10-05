@@ -12,7 +12,7 @@ import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
-import { Card, CardContent, CardDescription, CardTitle } from './ui/card.tsx'
+import { NoActiveItems } from './ui/no-active-items.tsx'
 import { Skeleton } from './ui/skeleton.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
 
@@ -495,15 +495,7 @@ function Household() {
           </div>
         )}
 
-        {todoList?.items.length === 0 && (
-          <Card className='border-dashed border-2'>
-            <CardContent className='flex flex-col items-center justify-center py-12 text-center'>
-              <CheckSquare className='h-12 w-12 text-muted-foreground mb-4' />
-              <CardTitle className='text-lg mb-2'>No tasks yet</CardTitle>
-              <CardDescription>Add your first task to get started</CardDescription>
-            </CardContent>
-          </Card>
-        )}
+        {todoList?.items.length === 0 && <NoActiveItems listType='TODO' />}
       </TabsContent>
 
       <TabsContent value='groceries' className='space-y-4'>
@@ -558,15 +550,7 @@ function Household() {
           </div>
         )}
 
-        {shoppingList?.items.length === 0 && (
-          <Card className='border-dashed border-2'>
-            <CardContent className='flex flex-col items-center justify-center py-12 text-center'>
-              <ShoppingCart className='h-12 w-12 text-muted-foreground mb-4' />
-              <CardTitle className='text-lg mb-2'>No groceries yet</CardTitle>
-              <CardDescription>Add items to your shopping list</CardDescription>
-            </CardContent>
-          </Card>
-        )}
+        {shoppingList?.items.length === 0 && <NoActiveItems listType='SHOPPING' />}
       </TabsContent>
     </Tabs>
   )
