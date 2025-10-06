@@ -1,7 +1,7 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
-import { CheckSquare, ShoppingCart } from 'lucide-react'
+import { CheckSquare, Loader2, ShoppingCart } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 import config from '../config'
@@ -209,13 +209,12 @@ function Household() {
       return { previousHousehold }
     },
     onError: (err, variables, context) => {
-      // Revert on error
+      // revert on error
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
     },
     onSettled: () => {
-      // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
     },
   })
@@ -383,6 +382,22 @@ function Household() {
     [selectedHousehold, editItemMutation]
   )
 
+  if (isLoading) {
+    return (
+      <div className='flex h-64 items-center justify-center'>
+        <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className='flex h-64 items-center justify-center'>
+        <p className='text-destructive'>Error loading household data. Please try again.</p>
+      </div>
+    )
+  }
+
   return (
     <Tabs defaultValue='todos' className='space-y-4'>
       <TabsList className='grid w-full grid-cols-2'>
@@ -458,7 +473,7 @@ function Household() {
           </div>
         )}
 
-        {todoList?.items.length === 0 && <NoActiveItems listType='TODO' />}
+        {!isLoading && todoList?.items.length === 0 && <NoActiveItems listType='TODO' />}
       </TabsContent>
 
       <TabsContent value='groceries' className='space-y-4'>
@@ -513,7 +528,7 @@ function Household() {
           </div>
         )}
 
-        {shoppingList?.items.length === 0 && <NoActiveItems listType='SHOPPING' />}
+        {!isLoading && shoppingList?.items.length === 0 && <NoActiveItems listType='SHOPPING' />}
       </TabsContent>
     </Tabs>
   )
