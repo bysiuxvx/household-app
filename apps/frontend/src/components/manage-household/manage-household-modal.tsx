@@ -299,8 +299,10 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                 <DialogTitle>Leave Household</DialogTitle>
               </div>
               <DialogDescription>
-                Are you sure you want to leave the household "{currentHousehold?.name}"? This action
-                cannot be undone.
+                Are you sure you want to leave the household <strong>"{currentHousehold?.name}"</strong>? This action
+                cannot be undone.{' '}
+                {currentHousehold?.members.length === 1 &&
+                  'You are the only member of this household, all data will be deleted.'}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
