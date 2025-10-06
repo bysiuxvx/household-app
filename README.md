@@ -9,6 +9,7 @@ A modern, full-stack application for managing household tasks.
 - **Modern UI** - Clean, responsive interface built with Radix UI components
 - **State Management** - Efficient state management with Jotai and React Query
 - **Form Handling** - Robust form validation with React Hook Form and Zod
+- **Progressive Web App** - Installable PWA with app-like experience
 
 ## 🛠 Tech Stack
 
@@ -19,7 +20,8 @@ A modern, full-stack application for managing household tasks.
 - **State Management**: Jotai & React Query
 - **Forms**: React Hook Form with Zod validation
 - **Icons**: Lucide React
-- **Build Tool**: Vite
+- **Build Tool**: Vite with PWA plugin
+- **PWA Support**: Workbox for service workers and offline functionality
 
 ### Backend
 - **Runtime**: Node.js
