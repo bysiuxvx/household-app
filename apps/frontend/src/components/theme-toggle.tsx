@@ -1,4 +1,4 @@
-import { Moon, Sun } from 'lucide-react'
+import { Check, Moon, Sun } from 'lucide-react'
 import * as React from 'react'
 
 import { useTheme } from './theme-provider'
@@ -12,7 +12,7 @@ import {
 import { Separator } from './ui/separator.tsx'
 
 export function ThemeToggle() {
-  const { setTheme } = useTheme()
+  const { theme, setTheme } = useTheme()
 
   return (
     <DropdownMenu>
@@ -28,10 +28,28 @@ export function ThemeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end' className='bg-background'>
-        <DropdownMenuItem onClick={() => setTheme('light')}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme('dark')}>Dark</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => setTheme('light')}
+          className='flex items-center justify-end pr-5'
+        >
+          {theme === 'light' && <Check className='h-4 w-4' />}
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => setTheme('dark')}
+          className='flex items-center justify-end pr-5'
+        >
+          {theme === 'dark' && <Check className='h-4 w-4' />}
+          Dark
+        </DropdownMenuItem>
         <Separator />
-        <DropdownMenuItem onClick={() => setTheme('system')}>System</DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => setTheme('system')}
+          className='flex items-center justify-end pr-5'
+        >
+          {theme === 'system' && <Check className='h-4 w-4' />}
+          System
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
