@@ -3,9 +3,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { ArrowLeft, Menu, Settings, Users } from 'lucide-react'
 
-import { ThemeToggle } from './theme-toggle'
-
 import { selectedHouseholdAtom } from '../store/store.ts'
+import { ThemeToggle } from './theme-toggle'
 import { Button } from './ui/button.tsx'
 
 interface NavbarProps {
@@ -33,7 +32,7 @@ function Navbar({ setOpen }: NavbarProps) {
               </Button>
               <h1 className='text-lg font-semibold text-foreground'>Households</h1>
             </div>
-            <div className="flex items-center gap-2">
+            <div className='flex items-center gap-2'>
               <ThemeToggle />
               <SignOutButton>
                 <Button variant='ghost' size='sm'>
@@ -45,6 +44,7 @@ function Navbar({ setOpen }: NavbarProps) {
         </div>
       </div>
     )
+
   return (
     <div className='w-full bg-white dark:bg-card border-b border-border'>
       <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>

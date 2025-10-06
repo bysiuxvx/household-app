@@ -11,7 +11,6 @@ import { z } from 'zod'
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
 import config from '../../config.ts'
-import type { Household } from '../../models/models.ts'
 import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
 import { getHeaders } from '../../utils/get-headers.ts'
 import { Button } from '../ui/button.tsx'
@@ -30,7 +29,6 @@ import MemberList from './member-list.tsx'
 interface ModalProps {
   open: boolean
   setOpen: (open: boolean) => void
-  setCurrentHousehold: (household: Household | null) => void
 }
 
 const schema = z.object({

@@ -64,7 +64,6 @@ function App() {
             setCreateHouseholdModalOpen={setCreateHouseholdModalOpen}
             manageHouseholdModalOpen={manageHouseholdModalOpen}
             setManageHouseholdModalOpen={setManageHouseholdModalOpen}
-            setSelectedHousehold={setSelectedHousehold}
           />
 
           <main className='space-y-6 pt-4'>
