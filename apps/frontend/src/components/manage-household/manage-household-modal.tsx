@@ -11,7 +11,8 @@ import { z } from 'zod'
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
 import config from '../../config.ts'
-import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
+import { useUserRole } from '../../hooks/user-role.ts'
+import { selectedHouseholdAtom } from '../../store/store.ts'
 import { getHeaders } from '../../utils/get-headers.ts'
 import { Button } from '../ui/button.tsx'
 import {
