@@ -24,7 +24,7 @@ function Navbar({ setOpen }: NavbarProps) {
 
   if (!selectedHousehold)
     return (
-      <div className='w-full bg-card border-b border-border'>
+      <div className='w-full bg-white dark:bg-card border-b border-border'>
         <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>
           <div className='flex items-center justify-between py-4'>
             <div className='flex items-center gap-3'>
@@ -46,7 +46,7 @@ function Navbar({ setOpen }: NavbarProps) {
       </div>
     )
   return (
-    <div className='w-full bg-card border-b border-border'>
+    <div className='w-full bg-white dark:bg-card border-b border-border'>
       <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>
         <div className='flex items-center gap-3 py-4'>
           <Button variant='ghost' size='sm' onClick={handleBackClick} className='gap-1.5 px-2.5'>

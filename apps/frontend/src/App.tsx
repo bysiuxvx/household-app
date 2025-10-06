@@ -54,7 +54,7 @@ function App() {
   }
 
   return (
-    <div className='min-h-screen bg-background pb-20 dark:bg-[#1b1b1c]'>
+    <div className='min-h-screen bg-slate-100/50 pb-20 dark:bg-[#1b1b1c]'>
       <ThemeProvider defaultTheme='system' storageKey='household-app-theme'>
         <Navbar setOpen={setManageHouseholdModalOpen} />
         <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>
