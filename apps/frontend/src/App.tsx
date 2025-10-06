@@ -57,19 +57,20 @@ function App() {
     <div className='min-h-screen bg-background pb-20 dark:bg-[#1b1b1c]'>
       <ThemeProvider defaultTheme='system' storageKey='household-app-theme'>
         <Navbar setOpen={setManageHouseholdModalOpen} />
-        <Modals
-          createHouseholdModalOpen={createHouseholdModalOpen}
-          setCreateHouseholdModalOpen={setCreateHouseholdModalOpen}
-          manageHouseholdModalOpen={manageHouseholdModalOpen}
-          setManageHouseholdModalOpen={setManageHouseholdModalOpen}
-          setSelectedHousehold={setSelectedHousehold}
-        />
+        <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>
+          <Modals
+            createHouseholdModalOpen={createHouseholdModalOpen}
+            setCreateHouseholdModalOpen={setCreateHouseholdModalOpen}
+            manageHouseholdModalOpen={manageHouseholdModalOpen}
+            setManageHouseholdModalOpen={setManageHouseholdModalOpen}
+            setSelectedHousehold={setSelectedHousehold}
+          />
 
-        <main className='p-4 space-y-6'>
-          {!selectedHousehold && <WelcomeBanner user={user} />}
-
-          {renderContent()}
-        </main>
+          <main className='space-y-6 pt-4'>
+            {!selectedHousehold && <WelcomeBanner user={user} />}
+            {renderContent()}
+          </main>
+        </div>
       </ThemeProvider>
     </div>
   )

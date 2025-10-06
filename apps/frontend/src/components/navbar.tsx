@@ -24,43 +24,47 @@ function Navbar({ setOpen }: NavbarProps) {
 
   if (!selectedHousehold)
     return (
-      <nav className='bg-card border-b border-border p-4'>
-        <div className='flex items-center justify-between'>
-          <div className='flex items-center gap-3'>
-            <Button variant='ghost' size='sm'>
-              <Menu className='h-5 w-5' />
-            </Button>
-            <h1 className='text-lg font-semibold text-foreground'>Households</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <ThemeToggle />
-            <SignOutButton>
+      <div className='w-full bg-card border-b border-border'>
+        <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>
+          <div className='flex items-center justify-between py-4'>
+            <div className='flex items-center gap-3'>
               <Button variant='ghost' size='sm'>
-                Sign Out
+                <Menu className='h-5 w-5' />
               </Button>
-            </SignOutButton>
+              <h1 className='text-lg font-semibold text-foreground'>Households</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <SignOutButton>
+                <Button variant='ghost' size='sm'>
+                  Sign Out
+                </Button>
+              </SignOutButton>
+            </div>
           </div>
         </div>
-      </nav>
+      </div>
     )
   return (
-    <nav className='bg-card border-b border-border p-4'>
-      <div className='flex items-center gap-3'>
-        <Button variant='ghost' size='sm' onClick={handleBackClick} className='gap-1.5 px-2.5'>
-          <ArrowLeft className='h-4 w-4' />
-        </Button>
-        <div className='flex-1'>
-          <h1 className='text-lg font-semibold'>{selectedHousehold.name}</h1>
-          <div className='flex items-center gap-2 text-sm text-muted-foreground'>
-            <Users className='h-3 w-3' />
-            <span>{selectedHousehold?.members?.length} members</span>
+    <div className='w-full bg-card border-b border-border'>
+      <div className='mx-auto max-w-full md:max-w-[1250px] px-4'>
+        <div className='flex items-center gap-3 py-4'>
+          <Button variant='ghost' size='sm' onClick={handleBackClick} className='gap-1.5 px-2.5'>
+            <ArrowLeft className='h-4 w-4' />
+          </Button>
+          <div className='flex-1'>
+            <h1 className='text-lg font-semibold'>{selectedHousehold.name}</h1>
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Users className='h-3 w-3' />
+              <span>{selectedHousehold?.members?.length} members</span>
+            </div>
           </div>
+          <Button variant='ghost' size='sm' onClick={() => setOpen(true)}>
+            <Settings className='h-4 w-4' />
+          </Button>
         </div>
-        <Button variant='ghost' size='sm' onClick={() => setOpen(true)}>
-          <Settings className='h-4 w-4' />
-        </Button>
       </div>
-    </nav>
+    </div>
   )
 }
 
