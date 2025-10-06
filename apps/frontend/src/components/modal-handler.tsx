@@ -1,6 +1,5 @@
 import * as React from 'react'
 
-import type { Household as HouseholdType } from '../models/models'
 import CreateHouseholdModal from './create-household-modal.tsx'
 import ManageHouseholdModal from './manage-household/manage-household-modal.tsx'
 
@@ -9,7 +8,6 @@ interface ModalsProps {
   setCreateHouseholdModalOpen: (open: boolean) => void
   manageHouseholdModalOpen: boolean
   setManageHouseholdModalOpen: (open: boolean) => void
-  setSelectedHousehold: (household: HouseholdType | null) => void
 }
 
 export const Modals = React.memo(
@@ -18,7 +16,6 @@ export const Modals = React.memo(
     setCreateHouseholdModalOpen,
     manageHouseholdModalOpen,
     setManageHouseholdModalOpen,
-    setSelectedHousehold,
   }: ModalsProps) => {
     return (
       <>
@@ -26,11 +23,12 @@ export const Modals = React.memo(
           open={createHouseholdModalOpen}
           setOpen={setCreateHouseholdModalOpen}
         />
-        <ManageHouseholdModal
-          open={manageHouseholdModalOpen}
-          setOpen={setManageHouseholdModalOpen}
-          setCurrentHousehold={setSelectedHousehold}
-        />
+        {manageHouseholdModalOpen && (
+          <ManageHouseholdModal
+            open={manageHouseholdModalOpen}
+            setOpen={setManageHouseholdModalOpen}
+          />
+        )}
       </>
     )
   }

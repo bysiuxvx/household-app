@@ -11,8 +11,8 @@ import { z } from 'zod'
 import { HOUSEHOLD_MIN_SECRET_LENGTH } from '@household/shared'
 
 import config from '../../config.ts'
-import type { Household } from '../../models/models.ts'
-import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
+import { useUserRole } from '../../hooks/user-role.ts'
+import { selectedHouseholdAtom } from '../../store/store.ts'
 import { getHeaders } from '../../utils/get-headers.ts'
 import { Button } from '../ui/button.tsx'
 import {
@@ -30,7 +30,6 @@ import MemberList from './member-list.tsx'
 interface ModalProps {
   open: boolean
   setOpen: (open: boolean) => void
-  setCurrentHousehold: (household: Household | null) => void
 }
 
 const schema = z.object({
@@ -300,8 +299,10 @@ function ManageHouseholdModal({ open, setOpen }: ModalProps) {
                 <DialogTitle>Leave Household</DialogTitle>
               </div>
               <DialogDescription>
-                Are you sure you want to leave the household "{currentHousehold?.name}"? This action
-                cannot be undone.
+                Are you sure you want to leave the household <strong>"{currentHousehold?.name}"</strong>? This action
+                cannot be undone.{' '}
+                {currentHousehold?.members.length === 1 &&
+                  'You are the only member of this household, all data will be deleted.'}
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

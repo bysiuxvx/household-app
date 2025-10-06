@@ -1,8 +1,9 @@
 import { useAtom } from 'jotai'
 import { MoreVertical } from 'lucide-react'
 
+import { useUserRole } from '../../hooks/user-role.ts'
 import type { HouseholdMember } from '../../models/models.ts'
-import { selectedHouseholdAtom, useUserRole } from '../../store/store.ts'
+import { selectedHouseholdAtom } from '../../store/store.ts'
 import { Badge } from '../ui/badge.tsx'
 import { Button } from '../ui/button.tsx'
 import { Label } from '../ui/label.tsx'

@@ -176,23 +176,56 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
           some: { userId },
         },
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
         members: {
-          include: {
+          select: {
             user: {
               select: {
                 id: true,
                 name: true,
                 email: true,
+                username: true
+              }
+            },
+            role: true,
+            joinedAt: true
+          }
+        },
+        lists: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            type: true,
+            isArchived: true,
+            createdAt: true,
+            updatedAt: true,
+            createdById: true,
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
                 username: true,
               },
             },
-          },
-        },
-        lists: {
-          include: {
             items: {
-              include: {
+              select: {
+                id: true,
+                text: true,
+                description: true,
+                completed: true,
+                completedAt: true,
+                priority: true,
+                dueDate: true,
+                createdById: true,
+                completedById: true,
+                createdAt: true,
+                updatedAt: true,
                 createdBy: {
                   select: {
                     id: true,
@@ -207,16 +240,14 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
                   },
                 },
               },
-              orderBy: { createdAt: 'asc' },
-            },
-            createdBy: {
-              select: {
-                id: true,
-                name: true,
+              orderBy: {
+                createdAt: 'asc',
               },
             },
           },
-          orderBy: { createdAt: 'asc' },
+          orderBy: {
+            createdAt: 'asc',
+          },
         },
       },
       orderBy: { createdAt: 'asc' },
