@@ -145,29 +145,31 @@ function CreateHouseholdModal({ open, setOpen }: ModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='sm:max-w-md'>
-        <DialogHeader>
-          <DialogTitle>
-            {isCreateView ? 'Create New Household' : 'Join Existing Household'}
-          </DialogTitle>
-          <DialogDescription>
-            {isCreateView
-              ? 'Give your household a name to get started with shared tasks and lists.'
-              : 'Enter the household secret and verification code to join an existing household.'}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className='sm:max-w-md top-[20%] translate-y-0 max-h-[90vh] flex flex-col'>
+        <div className='overflow-hidden flex flex-col'>
+          <DialogHeader className='pb-4'>
+            <DialogTitle>
+              {isCreateView ? 'Create New Household' : 'Join Existing Household'}
+            </DialogTitle>
+            <DialogDescription>
+              {isCreateView
+                ? 'Give your household a name to get started with shared tasks and lists.'
+                : 'Enter the household secret and verification code to join an existing household.'}
+            </DialogDescription>
+          </DialogHeader>
 
-        <div className='flex justify-center py-2'>
-          <Tabs
-            value={isCreateView ? 'create' : 'join'}
-            onValueChange={handleTabChange}
-            className='w-full'
-          >
-            <TabsList className='grid w-full grid-cols-2'>
-              <TabsTrigger value='create'>Create</TabsTrigger>
-              <TabsTrigger value='join'>Join</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className='flex justify-center py-2'>
+            <Tabs
+              value={isCreateView ? 'create' : 'join'}
+              onValueChange={handleTabChange}
+              className='w-full'
+            >
+              <TabsList className='grid w-full grid-cols-2'>
+                <TabsTrigger value='create'>Create</TabsTrigger>
+                <TabsTrigger value='join'>Join</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
 
         {isCreateView ? (
