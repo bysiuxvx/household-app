@@ -32,6 +32,7 @@ function App() {
   } = useQuery<HouseholdType[]>({
     queryKey: ['households'],
     queryFn: () => loadHouseholds(getToken),
+    enabled: !selectedHousehold?.id,
   })
 
   const loadingTime: number = useLoadingTime(isLoading)
