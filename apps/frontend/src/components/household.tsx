@@ -1,7 +1,7 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
-import { CheckSquare, Loader2, ShoppingCart } from 'lucide-react'
+import { CheckSquare, Loader, ShoppingCart } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 
 import config from '../config'
@@ -182,7 +182,7 @@ function Household() {
         selectedHousehold?.id,
       ])
 
-      // Optimistically update the UI
+      // optimistically update the UI
       if (previousHousehold) {
         const updatedLists = previousHousehold.lists.map((list) => ({
           ...list,
@@ -385,7 +385,7 @@ function Household() {
   if (isLoading) {
     return (
       <div className='flex h-64 items-center justify-center'>
-        <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
+        <Loader className='animate-spin h-12 w-12' />
       </div>
     )
   }
