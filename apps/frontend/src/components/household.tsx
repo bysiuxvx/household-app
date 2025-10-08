@@ -19,6 +19,7 @@ import { AddTodoForm } from './add-to-do-form.tsx'
 import { TodoItem } from './to-do-item.tsx'
 import { Badge } from './ui/badge.tsx'
 import { Button } from './ui/button.tsx'
+import LoadingError from './ui/loading-error.tsx'
 import { NoActiveItems } from './ui/no-active-items.tsx'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs.tsx'
 
@@ -107,6 +108,8 @@ function Household() {
     isLoading,
     isSuccess,
     error,
+    isError,
+    refetch,
   } = useQuery<HouseholdData>({
     queryKey: ['household', selectedHousehold?.id],
     queryFn: async () => {
@@ -390,13 +393,8 @@ function Household() {
     )
   }
 
-  if (error) {
-    return (
-      <div className='flex h-64 items-center justify-center'>
-        <p className='text-destructive'>Error loading household data. Please try again.</p>
-      </div>
-    )
-  }
+  if (isError)
+    return <LoadingError refetchFn={refetch} description='Could not load household data.' />
 
   return (
     <Tabs defaultValue='todos' className='space-y-4'>
