@@ -1,6 +1,7 @@
 import { useAuth, useUser } from '@clerk/clerk-react'
 import { useQuery } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
+import { AlertCircle, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import * as React from 'react'
 
@@ -9,7 +10,9 @@ import HouseholdsList from './components/households-list.tsx'
 import { Modals } from './components/modal-handler.tsx'
 import Navbar from './components/navbar.tsx'
 import { ThemeProvider } from './components/theme-provider'
+import { Button } from './components/ui/button.tsx'
 import HouseholdHeader from './components/ui/household-header.tsx'
+import LoadingError from './components/ui/loading-error.tsx'
 import LoadingState from './components/ui/loading-state.tsx'
 import WelcomeBanner from './components/ui/welcome-banner.tsx'
 import { useLoadingTime } from './hooks/use-loading-time.ts'
@@ -29,6 +32,8 @@ function App() {
     data: households = [],
     isLoading,
     error,
+    isError,
+    refetch,
   } = useQuery<HouseholdType[]>({
     queryKey: ['households'],
     queryFn: () => loadHouseholds(getToken),
@@ -45,6 +50,9 @@ function App() {
     if (isLoading) {
       return <LoadingState loadingTime={loadingTime} />
     }
+
+    if (isError)
+      return <LoadingError refetchFn={refetch} description="We couldn't load your households." />
 
     return (
       <>
