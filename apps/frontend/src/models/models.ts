@@ -1,5 +1,11 @@
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH'
 
+export const priorityObj: Record<Priority, string> = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+}
+
 export type ListType = 'TODO' | 'SHOPPING'
 
 export type UserRole = 'ADMIN' | 'MEMBER'

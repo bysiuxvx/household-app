@@ -2,14 +2,13 @@ import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import * as React from 'react'
 
-import type { ListType, Priority } from '../models/models.ts'
+import { type ListType, type Priority, priorityObj } from '../models/models.ts'
 import { Button } from './ui/button.tsx'
 import { Card, CardContent } from './ui/card.tsx'
 import { Input } from './ui/input.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select.tsx'
 
 interface AddTodoFormProps {
-  // onAdd: ({ text, priority, type }: { text: string; priority?: Priority; type: ListType }) => void
   onAdd: ({ text, priority, type }: { text: string; priority?: Priority; type: ListType }) => void
   type: ListType
   placeholder: string
@@ -61,9 +60,9 @@ export function AddTodoForm({ onAdd, type, placeholder, isSubmitting = false }: 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value='LOW'>Low</SelectItem>
-                  <SelectItem value='MEDIUM'>Medium</SelectItem>
-                  <SelectItem value='HIGH'>High</SelectItem>
+                  <SelectItem value={priorityObj.LOW}>Low</SelectItem>
+                  <SelectItem value={priorityObj.MEDIUM}>Medium</SelectItem>
+                  <SelectItem value={priorityObj.HIGH}>High</SelectItem>
                 </SelectContent>
               </Select>
               <Button
