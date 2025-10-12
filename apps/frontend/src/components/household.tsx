@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAtom } from 'jotai'
 import { CheckSquare, Loader, ShoppingCart } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import config from '../config'
 import type {
@@ -168,6 +169,7 @@ function Household() {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
     },
     onError: (error) => {
+      toast.error('Could not add item, please try again')
       console.error('Error adding item:', error)
     },
   })
@@ -216,6 +218,7 @@ function Household() {
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
+      toast.error('Could not toggle the item, please try again')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
@@ -272,6 +275,7 @@ function Household() {
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
+      toast.error('Could modify the item, please try again')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
@@ -309,6 +313,7 @@ function Household() {
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
+      toast.error('Could not delete the item, please try again')
     },
     onSettled: () => {
       // invalidate and refetch
@@ -341,6 +346,7 @@ function Household() {
       return await response.json()
     } catch (error) {
       console.error('Error deleting completed items:', error)
+      toast.error('Could not delete the items, please try again')
       throw error
     } finally {
       setClearingListId(null)
