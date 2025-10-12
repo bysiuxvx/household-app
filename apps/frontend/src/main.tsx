@@ -47,7 +47,7 @@ createRoot(document.getElementById('root')!).render(
       <SignedIn>
         <QueryClientProvider client={queryClient}>
           <App />
-          <Toaster position='bottom-right' />
+          <Toaster />
         </QueryClientProvider>
       </SignedIn>
     </ClerkProvider>
