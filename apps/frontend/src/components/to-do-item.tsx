@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from 'date-fns'
-import { Check, Edit2, Trash2, X } from 'lucide-react'
+import { Check, Edit2, Loader, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 
 import type { ListItem, ListType } from '../models/models.ts'
@@ -15,9 +15,17 @@ interface TodoItemProps {
   onEdit: (id: string, text: string) => void
   onDelete: (id: string) => void
   typeOfList: ListType
+  isHandledItem: boolean
 }
 
-export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoItemProps) {
+export function TodoItem({
+  item,
+  onToggle,
+  onEdit,
+  onDelete,
+  typeOfList,
+  isHandledItem,
+}: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(item.text)
 
@@ -46,13 +54,19 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
   const completedActionName: string = typeOfList === 'TODO' ? 'Completed' : 'Bought'
 
   return (
-    <Card className={`transition-all ${item.completed ? 'opacity-60' : ''}`}>
-      <CardContent className='p-3'>
+    <Card className={`transition-all relative ${item.completed ? 'opacity-60' : ''}`}>
+      {isHandledItem && (
+        <div className='absolute inset-0 backdrop-blur-xs z-10 flex items-center justify-center rounded-xl'>
+          <Loader className='h-9 w-9 animate-spin' />
+        </div>
+      )}
+      <CardContent className='p-3 relative z-0'>
         <div className='flex items-center gap-3'>
           <Checkbox
             checked={item.completed}
-            onCheckedChange={(checked) => onToggle(checked === true)}
+            onCheckedChange={(checked) => !isHandledItem && onToggle(checked === true)}
             className='mt-0.5'
+            disabled={isHandledItem}
           />
 
           <div className='flex-1 min-w-0'>
@@ -109,16 +123,18 @@ export function TodoItem({ item, onToggle, onEdit, onDelete, typeOfList }: TodoI
               <Button
                 size='sm'
                 variant='ghost'
-                onClick={() => setIsEditing(true)}
+                onClick={() => !isHandledItem && setIsEditing(true)}
                 className='h-8 w-8 p-0'
+                disabled={isHandledItem}
               >
                 <Edit2 className='h-4 w-4' />
               </Button>
               <Button
                 size='sm'
                 variant='ghost'
-                onClick={() => onDelete(item.id)}
-                className='h-8 w-8 p-0 text-destructive hover:text-destructive'
+                onClick={() => !isHandledItem && onDelete(item.id)}
+                className='h-8 w-8 p-0 text-destructive hover:text-destructive/90'
+                disabled={isHandledItem}
               >
                 <Trash2 className='h-4 w-4' />
               </Button>
