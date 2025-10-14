@@ -79,6 +79,24 @@ householdRouter.get(
     }
 
     try {
+      // check if the user is an admin of the household
+      const userMembership = await prisma.userOnHousehold.findFirst({
+        where: {
+          userId,
+          householdId,
+        },
+        select: {
+          role: true,
+        },
+      })
+
+      if (!userMembership) {
+        res.status(403).json({ error: 'Access denied' })
+        return
+      }
+
+      const isAdmin = userMembership.role === UserRoles.ADMIN
+
       const household = await prisma.household.findFirst({
         where: {
           id: householdId,
@@ -88,7 +106,11 @@ householdRouter.get(
             },
           },
         },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          ...(isAdmin && { secret: true }),
           members: {
             include: {
               user: {
@@ -132,11 +154,16 @@ householdRouter.get(
       })
 
       if (!household) {
-        res.status(404).json({ error: 'Household not found or access denied' })
+        res.status(404).json({ error: 'Household not found' })
         return
       }
 
-      res.json(household)
+      const response = {
+        ...household,
+        userRole: userMembership.role,
+      }
+
+      res.json(response)
     } catch (error) {
       console.error('Error fetching household:', error)
       res.status(500).json({ error: 'Failed to fetch household' })
@@ -189,12 +216,12 @@ householdRouter.get('/', async (req: express.Request, res: express.Response): Pr
                 id: true,
                 name: true,
                 email: true,
-                username: true
-              }
+                username: true,
+              },
             },
             role: true,
-            joinedAt: true
-          }
+            joinedAt: true,
+          },
         },
         lists: {
           select: {
