@@ -103,7 +103,7 @@ function Household() {
   const [clearingListId, setClearingListId] = useState<string | null>(null)
   const [completedTodos, setCompletedTodos] = useState<ListItem[]>([])
   const [completedGroceries, setCompletedGroceries] = useState<ListItem[]>([])
-  const [handledItem, setHandledItem] = useState<string | null>(null)
+  const [handledItems, setHandledItems] = useState<string[]>([])
 
   const {
     data: householdData,
@@ -177,7 +177,7 @@ function Household() {
 
   const toggleItemMutation = useMutation({
     mutationFn: async ({ itemId, completed }: { itemId: string; completed: boolean }) => {
-      setHandledItem(itemId)
+      setHandledItems((prev) => [...prev, itemId])
       const token = await getToken()
       return toggleListItem(itemId, completed, () => Promise.resolve(token || ''))
     },
@@ -220,12 +220,12 @@ function Household() {
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
-      setHandledItem(null)
+      setHandledItems((prev) => prev.filter((id) => id !== variables.itemId))
       toast.error('Could not toggle the item, please try again')
     },
-    onSettled: () => {
+    onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
-      setHandledItem(null)
+      setHandledItems((prev) => prev.filter((id) => id !== variables.itemId))
     },
   })
 
@@ -237,7 +237,7 @@ function Household() {
         headers: getHeaders(token),
         body: JSON.stringify({ text }),
       })
-      setHandledItem(itemId)
+      setHandledItems((prev) => [...prev, itemId])
 
       if (!response.ok) {
         throw new Error('Failed to update item')
@@ -280,18 +280,18 @@ function Household() {
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
-      setHandledItem(null)
+      setHandledItems((prev) => prev.filter((id) => id !== variables.itemId))
       toast.error('Could modify the item, please try again')
     },
-    onSettled: () => {
+    onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
-      setHandledItem(null)
+      setHandledItems((prev) => prev.filter((id) => id !== variables.itemId))
     },
   })
 
   const deleteItemMutation = useMutation({
     mutationFn: async (itemId: string) => {
-      setHandledItem(itemId)
+      setHandledItems((prev) => [...prev, itemId])
       const token = await getToken()
       return deleteListItem(itemId, () => Promise.resolve(token || ''))
     },
@@ -314,20 +314,18 @@ function Household() {
           lists: updatedLists,
         })
       }
-
       return { previousHousehold }
     },
-    onError: (err, variables, context) => {
+    onError: (error, itemId, context) => {
       if (context?.previousHousehold) {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
-      setHandledItem(null)
+      setHandledItems((prev) => prev.filter((id) => id !== itemId))
       toast.error('Could not delete the item, please try again')
     },
-    onSettled: () => {
-      // invalidate and refetch
+    onSettled: (data, error, itemId) => {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
-      setHandledItem(null)
+      setHandledItems((prev) => prev.filter((id) => id !== itemId))
     },
   })
 
@@ -454,7 +452,7 @@ function Household() {
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
-                isHandledItem={handledItem === item.id}
+                isHandledItem={handledItems.includes(item.id)}
               />
             ))}
           </div>
@@ -483,7 +481,7 @@ function Household() {
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
-                isHandledItem={handledItem === item.id}
+                isHandledItem={handledItems.includes(item.id)}
               />
             ))}
           </div>
@@ -511,7 +509,7 @@ function Household() {
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
-                isHandledItem={handledItem === item.id}
+                isHandledItem={handledItems.includes(item.id)}
               />
             ))}
           </div>
@@ -540,7 +538,7 @@ function Household() {
                 onToggle={(completed) => handleToggleItem(item.id, completed)}
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
-                isHandledItem={handledItem === item.id}
+                isHandledItem={handledItems.includes(item.id)}
               />
             ))}
           </div>
