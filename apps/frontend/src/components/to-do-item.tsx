@@ -103,9 +103,9 @@ export function TodoItem({
                       {item.priority}
                     </Badge>
                   )}
-                  {item.createdBy?.username && typeOfList === 'TODO' && (
+                  {item.createdBy && (
                     <Badge variant='outline' className='text-xs'>
-                      {item.createdBy.username}
+                      {item.createdBy.username || item.createdBy.name || item.createdBy.email}
                     </Badge>
                   )}
                 </div>
