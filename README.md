@@ -1,3 +1,4 @@
+
 # Household Management Application
 
 A modern, full-stack application for managing household tasks.
@@ -29,14 +30,11 @@ A modern, full-stack application for managing household tasks.
 - **Database**: PostgreSQL handled by Prisma
 - **Validation**: Zod
 - **Authentication**: Clerk
-- **Date Handling**: date-fns
-- **Database**: PostgreSQL
 
 ### Development Tools
 - **Package Manager**: pnpm
 - **Linting**: ESLint
 - **Formatting**: Prettier
-- **Type Checking**: TypeScript
 - **Monorepo**: pnpm workspaces
 
 ## 🚀 Getting Started
@@ -44,6 +42,12 @@ A modern, full-stack application for managing household tasks.
 ### Prerequisites
 - Node.js v18 or higher
 - pnpm v8.15.0 or higher
+
+### Testing the app
+Create your own account or use the example below:
+- [https://household-app-frontend.vercel.app/](https://household-app-frontend.vercel.app/)
+- User: **example**
+- Password: **exampleNov2025**
 
 ### Installation
 
