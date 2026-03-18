@@ -104,6 +104,7 @@ function Household() {
   const [completedTodos, setCompletedTodos] = useState<ListItem[]>([])
   const [completedGroceries, setCompletedGroceries] = useState<ListItem[]>([])
   const [handledItems, setHandledItems] = useState<string[]>([])
+  const [removingItems, setRemovingItems] = useState<string[]>([])
 
   const {
     data: householdData,
@@ -292,6 +293,7 @@ function Household() {
   const deleteItemMutation = useMutation({
     mutationFn: async (itemId: string) => {
       setHandledItems((prev) => [...prev, itemId])
+      setRemovingItems((prev) => [...prev, itemId])
       const token = await getToken()
       return deleteListItem(itemId, () => Promise.resolve(token || ''))
     },
@@ -321,11 +323,15 @@ function Household() {
         queryClient.setQueryData(['household', selectedHousehold?.id], context.previousHousehold)
       }
       setHandledItems((prev) => prev.filter((id) => id !== itemId))
+      setRemovingItems((prev) => prev.filter((id) => id !== itemId))
       toast.error('Could not delete the item, please try again')
     },
     onSettled: (data, error, itemId) => {
       queryClient.invalidateQueries({ queryKey: ['household', selectedHousehold?.id] })
       setHandledItems((prev) => prev.filter((id) => id !== itemId))
+      setTimeout(() => {
+        setRemovingItems((prev) => prev.filter((id) => id !== itemId))
+      }, 300)
     },
   })
 
@@ -453,6 +459,7 @@ function Household() {
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
                 isHandledItem={handledItems.includes(item.id)}
+                isRemoving={removingItems.includes(item.id)}
               />
             ))}
           </div>
@@ -482,6 +489,7 @@ function Household() {
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
                 isHandledItem={handledItems.includes(item.id)}
+                isRemoving={removingItems.includes(item.id)}
               />
             ))}
           </div>
@@ -510,6 +518,7 @@ function Household() {
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
                 isHandledItem={handledItems.includes(item.id)}
+                isRemoving={removingItems.includes(item.id)}
               />
             ))}
           </div>
@@ -539,6 +548,7 @@ function Household() {
                 onEdit={(id, text) => handleEditItem(id, text)}
                 onDelete={() => handleDeleteItem(item.id)}
                 isHandledItem={handledItems.includes(item.id)}
+                isRemoving={removingItems.includes(item.id)}
               />
             ))}
           </div>
