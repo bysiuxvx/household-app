@@ -16,6 +16,7 @@ interface TodoItemProps {
   onDelete: (id: string) => void
   typeOfList: ListType
   isHandledItem: boolean
+  isRemoving?: boolean
 }
 
 export function TodoItem({
@@ -25,6 +26,7 @@ export function TodoItem({
   onDelete,
   typeOfList,
   isHandledItem,
+  isRemoving = false,
 }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editText, setEditText] = useState(item.text)
@@ -54,7 +56,13 @@ export function TodoItem({
   const completedActionName: string = typeOfList === 'TODO' ? 'Completed' : 'Bought'
 
   return (
-    <Card className={`transition-all relative ${item.completed ? 'opacity-60' : ''}`}>
+    <Card
+      className={`transition-all relative duration-300 ease-in-out ${
+        item.completed ? 'opacity-60' : 'scale-100'
+      } ${isHandledItem ? 'animate-pulse' : ''} ${
+        isRemoving ? 'opacity-0 scale-95 translate-x-4' : ''
+      } hover:shadow-md`}
+    >
       {isHandledItem && (
         <div className='absolute inset-0 backdrop-blur-xs z-10 flex items-center justify-center rounded-xl'>
           <Loader className='h-9 w-9 animate-spin' />
